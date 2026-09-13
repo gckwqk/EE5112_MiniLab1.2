@@ -1,0 +1,38 @@
+# ROS 2 / colcon generated directories
+ros2_ws/build/
+ros2_ws/install/
+ros2_ws/log/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+.coverage
+
+# IDE/editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.bak
+*.log
+
+# Local backup archives
+*.tar.gz
+*.zip
+
+# Gazebo / ROS temporary output
+frames.pdf
+*.gv
+
+# Colcon metadata
+COLCON_IGNORE

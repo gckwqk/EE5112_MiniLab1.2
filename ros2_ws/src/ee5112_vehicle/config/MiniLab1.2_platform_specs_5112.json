@@ -1,0 +1,452 @@
+{
+  "course": "EE5112 Human-Robot Interaction",
+  "title": "Project: ROS-based Ackermann Vehicle Modelling, Commanded Colour Search and Speech Recognition",
+  "weight_percent": 15,
+  "assignment_type": "group_2_or_3",
+  "submission": {
+    "zip_name": "project_group_<index>.zip",
+    "example_zip": "project_group_1.zip",
+    "contents": [
+      "ROS source / workspace packages, including world/map files",
+      "README.md filled from README_TEMPLATE.md",
+      "Video_Task1 (Task 1 vehicle modelling / motion)",
+      "Video_Task2 (typed 1-4 colour command + fully autonomous search)",
+      "Video_Task3 (spoken command + [STT] + Task 2 autonomous search)"
+    ],
+    "no_formal_report": true,
+    "canvas": "CANVAS/Assignments/Project"
+  },
+  "schedule": {
+    "released": "2026-08-31",
+    "released_note": "Sun",
+    "due": "2026-09-27",
+    "submission": "CANVAS/Assignments/Project"
+  },
+  "contacts": {
+    "gas_tas": [
+      {
+        "name": "Mr. Huang Dong",
+        "email": "e1143962@u.nus.edu"
+      },
+      {
+        "name": "Mr. Ying Zhuohang",
+        "email": "e1554788@u.nus.edu"
+      }
+    ]
+  },
+  "frame": "map origin at SW corner; x east, y north; yaw=0 faces +x",
+  "vehicle": {
+    "note": "Task 2 and Task 3 must use this Task 1 vehicle. Do not substitute another robot.",
+    "chassis_LWH_m": [
+      0.3,
+      0.2,
+      0.12
+    ],
+    "wheelbase_m": 0.2,
+    "track_m": 0.16,
+    "wheel_radius_m": 0.04,
+    "wheel_width_m": 0.03,
+    "delta_max_deg": 35,
+    "v_max_m_s": 0.5,
+    "camera_link_xyz_rpy": [
+      0.14,
+      0.0,
+      0.08,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "laser_link_xyz_rpy": [
+      0.0,
+      0.0,
+      0.18,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "steering": "front_wheel_steering",
+    "drive": "rear_wheel_drive",
+    "drivetrain": "Ackermann_front_steer_rear_drive"
+  },
+  "map": {
+    "overall_m": [
+      4.2,
+      2.6
+    ],
+    "wall_thickness_m": 0.08,
+    "door_width_m": 0.5,
+    "corridor_height_m": 0.7,
+    "rooms": 3,
+    "block_size_m": 0.08,
+    "start_pose_xyyaw": [
+      0.55,
+      0.35,
+      0.0
+    ],
+    "corridor_door_centers_x_m": [
+      0.7,
+      2.1,
+      3.5
+    ],
+    "vertical_wall_x_m": [
+      1.4,
+      2.8
+    ],
+    "inter_room_opening": {
+      "width_m": 0.55,
+      "y_min_m": 1.15,
+      "y_max_m": 1.7,
+      "note": "opening height along y; clear gap through vertical walls at vertical_wall_x_m"
+    },
+    "room_x_ranges_m": {
+      "Room1": [
+        0.08,
+        1.36
+      ],
+      "Room2": [
+        1.44,
+        2.76
+      ],
+      "Room3": [
+        2.84,
+        4.12
+      ]
+    },
+    "room_y_range_m": [
+      0.7,
+      2.52
+    ],
+    "corridor_y_range_m": [
+      0.08,
+      0.62
+    ],
+    "block_colors": [
+      "Red",
+      "Orange",
+      "Yellow",
+      "Green",
+      "Blue",
+      "Purple",
+      "Black"
+    ],
+    "block_positions_xy_m": {
+      "Red": [
+        0.45,
+        1.7
+      ],
+      "Orange": [
+        0.95,
+        2.0
+      ],
+      "Yellow": [
+        1.8,
+        1.85
+      ],
+      "Green": [
+        2.35,
+        2.05
+      ],
+      "Blue": [
+        3.45,
+        2.15
+      ],
+      "Purple": [
+        3.7,
+        2.0
+      ],
+      "Black": [
+        3.55,
+        1.45
+      ]
+    },
+    "block_room": {
+      "Red": "Room1",
+      "Orange": "Room1",
+      "Yellow": "Room2",
+      "Green": "Room2",
+      "Blue": "Room3",
+      "Purple": "Room3",
+      "Black": "Room3"
+    },
+    "outer_walls_axis_aligned": [
+      {
+        "x": 0.0,
+        "y": 0.0,
+        "w": 4.2,
+        "h": 0.08
+      },
+      {
+        "x": 0.0,
+        "y": 2.52,
+        "w": 4.2,
+        "h": 0.08
+      },
+      {
+        "x": 0.0,
+        "y": 0.0,
+        "w": 0.08,
+        "h": 2.6
+      },
+      {
+        "x": 4.12,
+        "y": 0.0,
+        "w": 0.08,
+        "h": 2.6
+      }
+    ],
+    "layout_known_a_priori": true,
+    "slam_required": false,
+    "note": "This JSON is sufficient to build the Gazebo arena. outer_walls_axis_aligned + inner_walls_axis_aligned are axis-aligned boxes (x, y = south-west corner on the floor; w, h = size in x and y). Spawn each wall as a static box of size (w, h, wall_height_m) with centre (x + w/2, y + h/2, wall_height_m/2). Spawn each coloured block as a 0.08 m cube at (x, y, 0.04) using block_visual_rgba. A ready-to-open world is released as project_arena.world. Wall/room layout may be used as a prior map. Block identities must still be confirmed by onboard camera detection.",
+    "wall_height_m": 0.5,
+    "gazebo_world_file": "project_arena.world",
+    "gazebo_buildable_from_this_json": true,
+    "inner_walls_axis_aligned": [
+      {
+        "name": "corridor_div_1",
+        "x": 0.08,
+        "y": 0.62,
+        "w": 0.37,
+        "h": 0.08
+      },
+      {
+        "name": "corridor_div_2",
+        "x": 0.95,
+        "y": 0.62,
+        "w": 0.9,
+        "h": 0.08
+      },
+      {
+        "name": "corridor_div_3",
+        "x": 2.35,
+        "y": 0.62,
+        "w": 0.9,
+        "h": 0.08
+      },
+      {
+        "name": "corridor_div_4",
+        "x": 3.75,
+        "y": 0.62,
+        "w": 0.37,
+        "h": 0.08
+      },
+      {
+        "name": "vwall_12_low",
+        "x": 1.4,
+        "y": 0.7,
+        "w": 0.08,
+        "h": 0.45
+      },
+      {
+        "name": "vwall_12_high",
+        "x": 1.4,
+        "y": 1.7,
+        "w": 0.08,
+        "h": 0.82
+      },
+      {
+        "name": "vwall_23_low",
+        "x": 2.8,
+        "y": 0.7,
+        "w": 0.08,
+        "h": 0.45
+      },
+      {
+        "name": "vwall_23_high",
+        "x": 2.8,
+        "y": 1.7,
+        "w": 0.08,
+        "h": 0.82
+      }
+    ],
+    "block_visual_rgba": {
+      "Red": {
+        "r": 0.9,
+        "g": 0.1,
+        "b": 0.1,
+        "a": 1.0,
+        "gazebo_rgba": "0.90 0.10 0.10 1.00",
+        "use_in": "Put the same four numbers in both <ambient> and <diffuse> of the block <visual> material."
+      },
+      "Orange": {
+        "r": 0.95,
+        "g": 0.5,
+        "b": 0.05,
+        "a": 1.0,
+        "gazebo_rgba": "0.95 0.50 0.05 1.00",
+        "use_in": "Put the same four numbers in both <ambient> and <diffuse> of the block <visual> material."
+      },
+      "Yellow": {
+        "r": 0.95,
+        "g": 0.9,
+        "b": 0.1,
+        "a": 1.0,
+        "gazebo_rgba": "0.95 0.90 0.10 1.00",
+        "use_in": "Put the same four numbers in both <ambient> and <diffuse> of the block <visual> material."
+      },
+      "Green": {
+        "r": 0.1,
+        "g": 0.75,
+        "b": 0.15,
+        "a": 1.0,
+        "gazebo_rgba": "0.10 0.75 0.15 1.00",
+        "use_in": "Put the same four numbers in both <ambient> and <diffuse> of the block <visual> material."
+      },
+      "Blue": {
+        "r": 0.15,
+        "g": 0.25,
+        "b": 0.9,
+        "a": 1.0,
+        "gazebo_rgba": "0.15 0.25 0.90 1.00",
+        "use_in": "Put the same four numbers in both <ambient> and <diffuse> of the block <visual> material."
+      },
+      "Purple": {
+        "r": 0.55,
+        "g": 0.15,
+        "b": 0.7,
+        "a": 1.0,
+        "gazebo_rgba": "0.55 0.15 0.70 1.00",
+        "use_in": "Put the same four numbers in both <ambient> and <diffuse> of the block <visual> material."
+      },
+      "Black": {
+        "r": 0.08,
+        "g": 0.08,
+        "b": 0.08,
+        "a": 1.0,
+        "gazebo_rgba": "0.08 0.08 0.08 1.00",
+        "use_in": "Put the same four numbers in both <ambient> and <diffuse> of the block <visual> material."
+      }
+    },
+    "block_visual_sdf_example": "<visual name='visual'>\n  <geometry><box><size>0.08 0.08 0.08</size></box></geometry>\n  <material>\n    <ambient>0.90 0.10 0.10 1.00</ambient>\n    <diffuse>0.90 0.10 0.10 1.00</diffuse>\n    <specular>0.10 0.10 0.10 1</specular>\n    <emissive>0 0 0 0</emissive>\n  </material>\n</visual>"
+  },
+  "command_interface": {
+    "n_colours_min": 1,
+    "n_colours_max": 4,
+    "colours_must_be_distinct": true,
+    "allowed_colours": [
+      "Red",
+      "Orange",
+      "Yellow",
+      "Green",
+      "Blue",
+      "Purple",
+      "Black"
+    ],
+    "languages": [
+      "en"
+    ],
+    "english_only": true,
+    "example_commands_en": [
+      "find red",
+      "find red and blue",
+      "find red, blue and yellow",
+      "find red, blue, yellow and green"
+    ],
+    "reject_if": [
+      "empty",
+      "more_than_4_colours",
+      "repeated_colour",
+      "colour_not_in_allowed_list"
+    ],
+    "cmd_example_line": "[CMD] colours=Red, Blue n=2",
+    "search_order": "exactly the order named in the command",
+    "later_colour_not_counted_until_previous_found": true,
+    "after_command_accepted": "The vehicle must start moving by itself and keep going until every commanded colour is found (C1-C3, in order) or the mission fails."
+  },
+  "mission": {
+    "reuse_task1_vehicle_for_task2_and_task3": true,
+    "task2_navigation": "fully_autonomous_after_command",
+    "teleop_forbidden_in_graded_runs": true,
+    "rviz_manual_nav_goal_forbidden_in_graded_runs": true,
+    "found_definition": {
+      "C1_camera_colour_detection": true,
+      "no_groundtruth_only": true,
+      "C2_proximity_radius_m": 0.5,
+      "C2_reference": "planar Euclidean distance from base_link origin to block centre",
+      "C2_formula": "d = sqrt( (x_base - x_block)^2 + (y_base - y_block)^2 )",
+      "C2_ignore_z": true,
+      "C2_note": "Planar distance is the Euclidean distance in the horizontal plane. z is ignored.",
+      "C3_log_event": true,
+      "C3_terminal_or_rosout_print": true,
+      "C3_example_line": "[FOUND] colour=Blue t=12.3s x=3.40 y=2.10",
+      "C3_log_file_optional": true,
+      "C3_save_image_optional": true,
+      "contact_not_required": true,
+      "closer_than_0_50_m_allowed": true,
+      "video_terminal_visible_throughout_task2_task3": true,
+      "video_without_terminal_incomplete": true
+    },
+    "start_moving_immediately_after_command": true,
+    "run_until": [
+      "all_commanded_colours_found",
+      "mission_failed"
+    ],
+    "suggested_timeout_s": 180,
+    "mission_log_examples": [
+      "[MISSION] status=SUCCESS",
+      "[MISSION] status=FAIL reason=timeout"
+    ]
+  },
+  "task3_speech": {
+    "required": true,
+    "implementation_required": true,
+    "video_required": true,
+    "must_pipe_into_task2": true,
+    "stt_only_without_search_incomplete": true,
+    "stt_example_lines": [
+      "[STT] text=<recognised transcript>",
+      "[STT] colours=<parsed colour list>",
+      "[STT] error=<reason>"
+    ],
+    "example_asr_options": [
+      "SpeechRecognition",
+      "Whisper",
+      "Vosk",
+      "Google STT",
+      "Azure STT"
+    ],
+    "tts_required": false,
+    "points_note": "Task 4 is 60% (Student C). Marks consider both STT output and the connection to Task 3."
+  },
+  "grading": {
+    "score_table": [
+      {"task": 1, "score": "20%", "name": "ALL", "title": "Four-wheel-drive locomotion modes and application scenarios"},
+      {"task": 2, "score": "60%", "name": "Student A", "title": "Vehicle modelling and map modelling"},
+      {"task": 3, "score": "60%", "name": "Student B", "title": "Commanded colour-block search"},
+      {"task": 4, "score": "60%", "name": "Student C", "title": "Speech module connected to Task 3"},
+      {"task": 5, "score": "20%", "name": "ALL", "title": "Videos and README submission"}
+    ]
+  },
+  "suggested_split": {
+    "task1": "ALL",
+    "task2": "Student A",
+    "task3": "Student B",
+    "task4": "Student C; 2-member groups share Task 4",
+    "task5": "ALL"
+  },
+  "recommended_topics": {
+    "mandatory": false,
+    "note": "Not required for marks, but strongly recommended so nodes from different members plug together.",
+    "topics": [
+      {
+        "role": "speed / steering command",
+        "name": "/ackermann_cmd",
+        "type": "ackermann_msgs/AckermannDrive"
+      },
+      {
+        "role": "colour detection result (optional)",
+        "name": "/detected_colours",
+        "type": "std_msgs/String or a custom message"
+      },
+      {
+        "role": "speech command (Task 4 to Task 3)",
+        "name": "/speech_command",
+        "type": "std_msgs/String"
+      },
+      {
+        "role": "mission status (optional)",
+        "name": "/mission_status",
+        "type": "std_msgs/String"
+      }
+    ]
+  }
+}
