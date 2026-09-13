@@ -1,8 +1,6 @@
 # EE5112 Mini-Lab README (Group Submission)
 
-> Copy this file to `README.md` in your **group** zip and replace the bracketed placeholders.
->
-> **Mini-lab schedule:** Released 31 Aug 2026 (Sun) · Due **27 Sep 2026** · Canvas Student Submission: Mini-Lab  
+> **Mini-lab schedule:** Released 31 Aug 2026 (Sun) · Due **4 Oct 2026** · Canvas Student Submission: Mini-Lab  
 > **GAs:** Mr. Huang Dong (dong.huang@u.nus.edu); Mr. Ying Zhuohang (E1554788@u.nus.edu)
 >
 > This README is a **group document**, not an individual log. One README covers all five tasks. Keep it short and tied to your code — not a generic software manual.
@@ -14,9 +12,9 @@
 
 | Name | Matriculation No. | Led task(s) |
 |------|-------------------|-------------|
-| **[Goh Chian Kai]** | **[A0330123B]** | Task 2; Task 1 & Task 5 with the group |
-| **[Mohammad Asif Bin Abdul Sahid]** | **[A0313732M]** | Task 3; Task 1 & Task 5 with the group |
-| **[Tan Chew Miang Edwin]** | **[A0201867A]** | Task 4; Task 1 & Task 5 with the group |
+| **Goh Chian Kai** | **A0330123B** | Task 2; Task 1 & Task 5 with the group |
+| **Mohammad Asif Bin Abdul Sahid** | **A0313732M** | Task 3; Task 1 & Task 5 with the group |
+| **Tan Chew Miang Edwin** | **A0201867A** | Task 4; Task 1 & Task 5 with the group |
 
 ## 1. Dependencies
 
