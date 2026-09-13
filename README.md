@@ -159,9 +159,9 @@ No implementation is required for Task 1.
 
 ---
 
-## 6. Task 2 — How Student A modelled the vehicle and the map
+## 6. Task 2 — How the vehicle and the map is modelled
 
-**What we did (self-description):**  
+**What was done:**  
 We modelled the required rectangular four-wheel vehicle in Xacro with an Ackermann-style front-steer/rear-drive architecture. The chassis is `0.30 × 0.20 × 0.12 m`, with `0.20 m` wheelbase, `0.16 m` track, `0.04 m` wheel radius, `0.03 m` wheel width, maximum steering magnitude `35°`, and required maximum vehicle speed `0.50 m/s`. The front steering joints use position command interfaces and the rear wheels use velocity command interfaces through `gazebo_ros2_control`; the front rolling joints are free rolling. The prescribed RGB camera and 2D LiDAR are rigidly attached and verified in Gazebo. The three-room arena and seven coloured blocks are generated from the supplied JSON, and the vehicle spawns at START `(0.55, 0.35, 0)`. This exact vehicle/map is to be reused by Tasks 3 and 4.
 
 **Key files:**
