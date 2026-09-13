@@ -78,7 +78,8 @@
 
 
   <!-- ========================================================= -->
-  <!-- MATERIALS                                                -->
+  <!-- MATERIALS (used by RViz - Gazebo needs its own tags,     -->
+  <!-- see the <gazebo reference="..."> blocks near the bottom) -->
   <!-- ========================================================= -->
 
   <material name="body_blue">
@@ -127,7 +128,7 @@
 
   <link name="base_link">
 
-    <visual name="chassis_visual">
+    <visual>
 
       <geometry>
         <box size="${chassis_length}
@@ -140,7 +141,7 @@
     </visual>
 
 
-    <collision name="chassis_collision">
+    <collision>
 
       <geometry>
         <box size="${chassis_length}
@@ -480,7 +481,7 @@
 
   <link name="camera_link">
 
-    <visual name="camera_body">
+    <visual>
 
       <geometry>
         <box size="0.035 0.050 0.030"/>
@@ -491,7 +492,7 @@
     </visual>
 
 
-    <visual name="camera_lens">
+    <visual>
 
       <origin
           xyz="0.0225 0 0"
@@ -508,7 +509,7 @@
     </visual>
 
 
-    <collision name="camera_collision">
+    <collision>
 
       <geometry>
         <box size="0.035 0.050 0.030"/>
@@ -555,7 +556,7 @@
 
   <link name="laser_link">
 
-    <visual name="laser_body">
+    <visual>
 
       <geometry>
         <cylinder
@@ -568,7 +569,7 @@
     </visual>
 
 
-    <visual name="laser_support">
+    <visual>
 
       <origin
           xyz="0 0 -0.035"
@@ -585,7 +586,7 @@
     </visual>
 
 
-    <collision name="laser_collision">
+    <collision>
 
       <geometry>
         <cylinder
@@ -629,10 +630,40 @@
 
 
   <!-- ========================================================= -->
-  <!-- GAZEBO WHEEL CONTACT                                     -->
+  <!-- GAZEBO VISUAL MATERIALS                                  -->
   <!-- ========================================================= -->
 
+  <!--
+       Gazebo classic's legacy URDF "gazebo extension" converter
+       expects <material> under <gazebo reference="..."> to be a
+       PLAIN TEXT built-in Ogre material script name (e.g.
+       "Gazebo/Blue"), not nested <ambient>/<diffuse> elements and
+       not wrapped in a named <visual> tag - both of those forms
+       were silently dropped, which is why the model kept
+       rendering grey. Each link below uses one of Gazebo's
+       built-in material names as the closest match to the
+       original custom RGBA colors.
+
+       Each link also gets exactly ONE <gazebo reference="...">
+       block (material + friction + sensor all merged together).
+       Multiple separate <gazebo reference> blocks for the same
+       link are not guaranteed to merge cleanly in Gazebo classic.
+  -->
+
+  <gazebo reference="base_link">
+    <material>Gazebo/Blue</material>
+  </gazebo>
+
+  <gazebo reference="front_left_steering_link">
+    <material>Gazebo/Grey</material>
+  </gazebo>
+
+  <gazebo reference="front_right_steering_link">
+    <material>Gazebo/Grey</material>
+  </gazebo>
+
   <gazebo reference="front_left_wheel_link">
+    <material>Gazebo/FlatBlack</material>
     <mu1>1.0</mu1>
     <mu2>1.0</mu2>
     <kp>1000000.0</kp>
@@ -640,6 +671,7 @@
   </gazebo>
 
   <gazebo reference="front_right_wheel_link">
+    <material>Gazebo/FlatBlack</material>
     <mu1>1.0</mu1>
     <mu2>1.0</mu2>
     <kp>1000000.0</kp>
@@ -647,6 +679,7 @@
   </gazebo>
 
   <gazebo reference="rear_left_wheel_link">
+    <material>Gazebo/FlatBlack</material>
     <mu1>1.0</mu1>
     <mu2>1.0</mu2>
     <kp>1000000.0</kp>
@@ -654,6 +687,7 @@
   </gazebo>
 
   <gazebo reference="rear_right_wheel_link">
+    <material>Gazebo/FlatBlack</material>
     <mu1>1.0</mu1>
     <mu2>1.0</mu2>
     <kp>1000000.0</kp>
@@ -662,15 +696,13 @@
 
 
   <!-- ========================================================= -->
-  <!-- GAZEBO RGB CAMERA                                        -->
+  <!-- GAZEBO RGB CAMERA (material + sensor merged into ONE      -->
+  <!-- <gazebo reference="camera_link"> block)                  -->
   <!-- ========================================================= -->
 
-  <!--
-       This is the already verified camera configuration.
-       Do not alter it while testing the LiDAR addition.
-  -->
-
   <gazebo reference="camera_link">
+
+    <material>Gazebo/DarkGrey</material>
 
     <sensor name="front_camera"
             type="camera">
@@ -738,6 +770,8 @@
   -->
 
   <gazebo reference="laser_link">
+
+    <material>Gazebo/DarkGrey</material>
 
     <sensor name="lidar"
             type="ray">
