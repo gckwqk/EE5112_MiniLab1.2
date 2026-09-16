@@ -156,14 +156,14 @@ Ackermann steering is configuration in which the front wheels change their steer
 
 A common low-speed approximation is the bicycle model,
 
-\[ `\dot{x}`{=tex}=v`\cos`{=tex}`\theta`{=tex},`\qquad`{=tex}
-`\dot{y}`{=tex}=v`\sin`{=tex}`\theta`{=tex},`\qquad`{=tex}
-`\dot{\theta}`{=tex}=`\frac{v}{L}`{=tex}`\tan`{=tex}`\delta`{=tex}, \]
+\[ $\dot{x}$=v$\cos$$\theta$,$\qquad$
+$\dot{y}$=v$\sin$$\theta$,$\qquad$
+$\dot{\theta}$=$\frac{v}{L}$$\tan$$\delta$, \]
 
-where (v) is longitudinal speed, (`\theta`{=tex}) is heading, (L) is wheelbase, and (`\delta`{=tex}) is the equivalent steering angle \[1\], \[3\]. The vehicle is non-holonomic: it cannot translate directly sideways or rotate in place.
+where (v) is longitudinal speed, ($\theta$) is heading, (L) is wheelbase, and ($\delta$) is the equivalent steering angle \[1\], \[3\]. The vehicle is non-holonomic: it cannot translate directly sideways or rotate in place.
 
 **Typical command inputs.**
-The natural high level inputs are forward and reverse speed (v) and steering angle (`\delta`{=tex}). These high level inputs are then converted into steering-joint angles and driven-wheel velocities for control inputs. 
+The natural high level inputs are forward and reverse speed (v) and steering angle ($\delta$). These high level inputs are then converted into steering-joint angles and driven-wheel velocities for control inputs. 
 
 **Suitable applications.**
 Ackermann steering is suitable for applications with low-to-moderate speed applications where rolling efficiency and tire wear matter more than high-speed cornering dynamics. Passenger cars and light trucks are the typical use case where the vehicles speed range minimizes tire scrubbing and allows for stable maneuvering. Mobile robotic platforms such as warehouse robots are suitable as well as it gives predictable and calculable turning radii, for ease of implementation of path-planning algorithm.
@@ -175,8 +175,8 @@ A differential-drive platform uses two independently powered wheels or tracks on
 
 For an ideal two-wheel differential model,
 
-\[ v=`\frac{v_R+v_L}{2}`{=tex},`\qquad`{=tex}
-`\omega`{=tex}=`\frac{v_R-v_L}{W}`{=tex}, \]
+\[ v=$\frac{v_R+v_L}{2}$,$\qquad$
+$\omega$=$\frac{v_R-v_L}{W}$, \]
 
 where (v_L) and (v_R) are the left/right wheel linear velocities and (W) is the track width \[1\]. Equal velocities produce straight motion; unequal velocities produce a turn; opposite velocities allow
 approximately zero-radius rotation. 
@@ -184,7 +184,7 @@ approximately zero-radius rotation.
 Four-wheel skid-steer vehicles use the same principle but rely on lateral tyre slip during turning.
 
 **Typical command inputs.**
-The controller normally commands left and right wheel velocities ((v_L,v_R)), or equivalently a desired linear velocity (v) and yaw rate (`\omega`{=tex}) that are converted into wheels angular velocity.
+The controller normally commands left and right wheel velocities ((v_L,v_R)), or equivalently a desired linear velocity (v) and yaw rate ($\omega$) that are converted into wheels angular velocity.
 
 **Suitable applications.**
 Differential drive is suitable for applications that operates in areas with space constraints due to its ability to rotate in place and the need for compactness due to mechanical simplicity. Mobile robots such as vacuum and warehouse robots are suitable as they are cheap and mechanically simple to implement, and allows for maneuvering in tight spaces. Track vehicles such as tanks are ideal as well as the differential drive provides excellent traction and ability to pivot in place, as they are often deployed in rough, soft or unstable terrains.
@@ -192,17 +192,17 @@ Differential drive is suitable for applications that operates in areas with spac
 ### Omnidirectional drive
 
 **Kinematic idea.**
-Omnidirectional drive allows a vehicle to translate in any directions. Each wheel consists of both longitudinal and lateral motion components. By coordinating all four wheel speeds, the platform can independently produce forward/backward velocity (v_x), lateral velocity (v_y), and yaw rate (`\omega`{=tex}) \[2\], \[4\]. Unlike Ackermann and differential drive, an ideal omnidirectional platform is holonomic in planar motion and can translate sideways without first changing its heading.
+Omnidirectional drive allows a vehicle to translate in any directions. Each wheel consists of both longitudinal and lateral motion components. By coordinating all four wheel speeds, the platform can independently produce forward/backward velocity (v_x), lateral velocity (v_y), and yaw rate ($\omega$) \[2\], \[4\]. Unlike Ackermann and differential drive, an ideal omnidirectional platform is holonomic in planar motion and can translate sideways without first changing its heading.
 
 **Typical command inputs.**
-The high-level controller typically commands (v_x), (v_y), and (`\omega`{=tex}). Inverse kinematics converts these three commands into the four individual wheel angular velocities.
+The high-level controller typically commands (v_x), (v_y), and ($\omega$). Inverse kinematics converts these three commands into the four individual wheel angular velocities.
 
 **Suitable applications.**
 Omnidirectional platforms are useful for warehouses, factories, mobile manipulators and parking/alignment tasks where precise lateral repositioning is valuable. Their disadvantages are greater mechanical/control complexity and increased sensitivity to roller contact, wheel slip and uneven or low-traction surfaces.
 
 ### Choice of Ackermann platform this MiniLab
 
-The use front-wheel Ackermann steering with rear-wheel drive in this MiniLab makes navigation more constrained as compared to differential or omnidirectional drive as the robot is unable rotate in place or correct its position by moving sideways. For the implemented vehicle, the wheelbase is (L=0.20) m and the maximum steering angle is (35\^`\circ`{=tex}). Therefore, when crossing door openings, considerations of suitable positions and headings must be taken into account to generate a feasible curved path rather than relying on an in-place rotation or lateral correction. This makes Ackermann steering a useful platform for demonstrating realistic non-holonomic path-planning and steering-control constraints.
+The use front-wheel Ackermann steering with rear-wheel drive in this MiniLab makes navigation more constrained as compared to differential or omnidirectional drive as the robot is unable rotate in place or correct its position by moving sideways. For the implemented vehicle, the wheelbase is (L=0.20) m and the maximum steering angle is (35\^$\circ$). Therefore, when crossing door openings, considerations of suitable positions and headings must be taken into account to generate a feasible curved path rather than relying on an in-place rotation or lateral correction. This makes Ackermann steering a useful platform for demonstrating realistic non-holonomic path-planning and steering-control constraints.
 
 **References used for Task 1:**
 
@@ -232,15 +232,15 @@ The required rectangular four-wheel vehicle in Xacro with an Ackermann-style fro
 
 For low-speed planar motion, the vehicle state is
 
-\[ `\mathbf{x}`{=tex}=\[x,;y,;`\theta`{=tex}\]\^T, \]
+\[ $\mathbf{x}$=\[x,;y,;$\theta$\]\^T, \]
 
-where (x,y) are the planar position and (`\theta`{=tex}) is yaw/heading.
+where (x,y) are the planar position and ($\theta$) is yaw/heading.
 
 The high-level control input is
 
-\[ `\mathbf{u}`{=tex}=\[v,;`\delta`{=tex}\]\^T, \]
+\[ $\mathbf{u}$=\[v,;$\delta$\]\^T, \]
 
-where (v) is longitudinal speed and (`\delta`{=tex}) is the equivalent front steering angle. In Gazebo, these correspond to front-left/right steering position commands and rear-left/right wheel velocity commands. For straight rolling, rear-wheel angular speed is approximately (`\omega`{=tex}\_w=v/r).
+where (v) is longitudinal speed and ($\delta$) is the equivalent front steering angle. In Gazebo, these correspond to front-left/right steering position commands and rear-left/right wheel velocity commands. For straight rolling, rear-wheel angular speed is approximately ($\omega$\_w=v/r).
 
 #### Kinematics
 
@@ -248,18 +248,18 @@ For low operating speed (max 0.50 m.s), the four-wheel vehicle is represented by
 
 Assuming pure rolling and negligible lateral slip,
 
-\[ `\dot{x}`{=tex}=v`\cos`{=tex}`\theta`{=tex},`\qquad`{=tex}
-`\dot{y}`{=tex}=v`\sin`{=tex}`\theta`{=tex},`\qquad`{=tex}
-`\dot{\theta}`{=tex}=`\frac{v}{L}`{=tex}`\tan`{=tex}`\delta`{=tex}. \]
+\[ $\dot{x}$=v$\cos$$\theta$,$\qquad$
+$\dot{y}$=v$\sin$$\theta$,$\qquad$
+$\dot{\theta}$=$\frac{v}{L}$$\tan$$\delta$. \]
 
 The centreline turning radius is
 
-\[ R=`\frac{L}{\tan\delta}`{=tex}. \]
+\[ R=$\frac{L}{\tan\delta}$. \]
 
-With (L=0.20) m and (`\delta`{=tex}\_{`\max`{=tex}}=35\^`\circ`{=tex}),
+With (L=0.20) m and ($\delta$\_{$\max$}=35\^$\circ$),
 
 \[
-R\_{`\min`{=tex}}=`\frac{0.20}{\tan35^\circ}`{=tex}`\approx0.286`{=tex}`\text{ m}`{=tex}.
+R\_{$\min$}=$\frac{0.20}{\tan35^\circ}$$\approx0.286$$\text{ m}$.
 \]
 
 "Note: this R_min figure is the bicycle-model (single-track, centreline) result, obtained by treating δ_max = 35° as the equivalent centreline steering angle. If the physical front-wheel joints are each independently limited to ±35°, the inner wheel which must steer more sharply than the centreline angle in a turn, reaches its 35° limit first. Solving tan(35°) = L/(R − W/2) for R gives R_min ≈ 0.366 m as the true achievable minimum radius under a genuine per-wheel joint limit."
@@ -267,8 +267,8 @@ R\_{`\min`{=tex}}=`\frac{0.20}{\tan35^\circ}`{=tex}`\approx0.286`{=tex}`\text{ m
 For ideal four-wheel Ackermann geometry, the inner and outer front wheels require different angles:
 
 \[
-`\tan`{=tex}`\delta`{=tex}*{`\mathrm{inner}`{=tex}}=`\frac{L}{R-W/2}`{=tex},`\qquad`{=tex}
-`\tan`{=tex}`\delta`{=tex}*{`\mathrm{outer}`{=tex}}=`\frac{L}{R+W/2}`{=tex}.
+$\tan$$\delta$*{$\mathrm{inner}$}=$\frac{L}{R-W/2}$,$\qquad$
+$\tan$$\delta$*{$\mathrm{outer}$}=$\frac{L}{R+W/2}$.
 \]
 
 Hence the inner wheel steers more sharply than the outer wheel so that the wheel axes approximately meet at a common instantaneous centre of rotation.
@@ -287,8 +287,8 @@ properties. `gazebo_ros2_control` applies steering-position and rear-wheel-veloc
   Track width                                        \(W\)                 0.16 m
   Wheel radius                                       \(r\)                 0.04 m
   Wheel width                                          ---                 0.03 m
-  Maximum steering        (`\delta`{=tex}\_{`\max`{=tex}})      ±35° (±0.611 rad)
-  Maximum speed                        (v\_{`\max`{=tex}})               0.50 m/s
+  Maximum steering        ($\delta$\_{$\max$})      ±35° (±0.611 rad)
+  Maximum speed                        (v\_{$\max$})               0.50 m/s
   Steering                                             ---            Front-wheel
   Drive                                                ---             Rear-wheel
 
@@ -307,20 +307,20 @@ properties. `gazebo_ros2_control` applies steering-position and rear-wheel-veloc
 ## Effect of vehicle geometry and physical parameters on motion
 
 **Chassis size.**
-The (0.30`\times0.20`{=tex}`\times0.12`{=tex}) m chassis determines the physical footprint that must clear walls, door frames and coloured blocks. Although the bicycle model often treats the vehicle as a point at its reference position, the planner must account for the complete rectangular footprint. A larger or wider chassis reduces clearance through narrow openings and increases the risk that a collision-free centreline trajectory is not collision-free for the actual body. The chassis dimensions therefore directly affect feasible doorway approaches and the safety margin required around obstacles.
+The (0.30$\times0.20$$\times0.12$) m chassis determines the physical footprint that must clear walls, door frames and coloured blocks. Although the bicycle model often treats the vehicle as a point at its reference position, the planner must account for the complete rectangular footprint. A larger or wider chassis reduces clearance through narrow openings and increases the risk that a collision-free centreline trajectory is not collision-free for the actual body. The chassis dimensions therefore directly affect feasible doorway approaches and the safety margin required around obstacles.
 
 **Wheelbase.**
 The wheelbase (L=0.20) m directly affects curvature through
 
-\[ R=`\frac{L}{\tan\delta}`{=tex}. \]
+\[ R=$\frac{L}{\tan\delta}$. \]
 
 For a fixed steering angle, increasing (L) increases the turning radius and produces a wider, less agile turn. A shorter wheelbase allows tighter turns but generally produces faster heading change for the same
 speed and steering command. The MiniLab wheelbase must therefore be considered when generating paths between rooms and aligning the vehicle with door openings.
 
 **Steering limit.**
-The front steering joints are limited to (`\lvert`{=tex}`\delta`{=tex}`\rvert`{=tex}`\leq35`{=tex}\^`\circ`{=tex}). This limits the maximum achievable curvature given by,
+The front steering joints are limited to ($\lvert$$\delta$$\rvert$$\leq35$\^$\circ$). This limits the maximum achievable curvature given by,
 
-\[ `\kappa`{=tex}\_{`\max`{=tex}}=`\frac{\tan\delta_{\max}}{L}`{=tex},\]
+\[ $\kappa$\_{$\max$}=$\frac{\tan\delta_{\max}}{L}$,\]
 
 and gives a bicycle-model centreline minimum turning radius of approximately 0.286 m (the corresponding minimum radius for the physical inner front wheel, accounting for the track width, is approximately 0.366 m). Commands requesting greater curvature are physically infeasible. Unlike a differential-drive or Mecanum robot, the
 Ackermann vehicle cannot rotate in place or translate sideways, so a poor doorway approach cannot be corrected instantaneously. The planner/controller must begin turning early enough to enter an opening with an appropriate position and heading.
@@ -328,7 +328,7 @@ Ackermann vehicle cannot rotate in place or translate sideways, so a poor doorwa
 **Speed and dynamic parameters.**
 The prescribed vehicle speed is limited to (0.50) m/s. At higher speed, the same steering angle produces a larger yaw rate magnitude given by,
 
-\[ `\dot{\theta}`{=tex}=`\frac{v}{L}`{=tex}`\tan`{=tex}`\delta`{=tex},
+\[ $\dot{\theta}$=$\frac{v}{L}$$\tan$$\delta$,
 \]
 
 so steering and path-tracking errors can develop more quickly. The Gazebo model also includes chassis/wheel masses and inertias, joint damping/friction, wheel-ground friction and contact properties. These parameters do not change the ideal geometric turning-radius equation, but they affect the transient response and realised trajectory. Greater mass/inertia resists rapid changes in motion; damping suppresses joint oscillation; and insufficient tyre-ground friction can cause wheel slip so that the simulated path departs from the ideal no-slip Ackermann model. Because the MiniLab operates at low speed, the kinematic model is used for path-level reasoning while Gazebo accounts for these physical effects.
