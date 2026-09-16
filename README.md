@@ -145,11 +145,11 @@ TF has been verified with TF2 tools.
 
 The implemented Task 2 platform uses Ackermann steering: front wheels steer and rear wheels provide propulsion. It has a finite turning radius rather than a pivot-based rotation, so door approaches and corridor manoeuvres must respect the wheelbase, track and ±35° steering limit.
 
-## Comparison of three wheeled locomotion modes
+### Comparison of three wheeled locomotion modes
 
 Three wheeled locomotion configurations relevant to a four-wheel drive vehicle are Ackermann steering, differential drive, and omnidirectional drive. They differ mainly in how steering is produced, the motion constraints imposed by the wheels, the commands required from the controller, and the environments in which they are most effective \[1\], \[2\], \[3\], \[4\].
 
-## Ackermann steering
+### Ackermann steering
 
 **Kinematic idea.** 
 Ackermann steering is configuration in which the front wheels change their steering angle while the rear wheels provide propulsion. During a turn, the inner front wheel steers more sharply than the outer front wheel such that the wheel axes intersect at a common instantaneous centre of rotation, reducing lateral tyre scrubbing. 
@@ -221,9 +221,9 @@ The use front-wheel Ackermann steering with rear-wheel drive in this MiniLab mak
 **What was done:**  
 The required rectangular four-wheel vehicle in Xacro with an Ackermann-style front-steer/rear-drive architecture was modelled. The chassis is `0.30 × 0.20 × 0.12 m`, with `0.20 m` wheelbase, `0.16 m` track, `0.04 m` wheel radius, `0.03 m` wheel width, maximum steering magnitude `35°`, and required maximum vehicle speed `0.50 m/s`. The front steering joints use position command interfaces and the rear wheels use velocity command interfaces through `gazebo_ros2_control`; the front rolling joints are free rolling. The prescribed RGB camera and 2D LiDAR are rigidly attached and verified in Gazebo. The three-room arena and seven coloured blocks are generated from the supplied JSON, and the vehicle spawns at START `(0.55, 0.35, 0)`. This exact vehicle/map will be reused in Tasks 3 and 4.
 
-## Ackermann vehicle model
+### Ackermann vehicle model
 
-## States and inputs
+####States and inputs
 
 For low-speed planar motion, the vehicle state is
 
@@ -268,26 +268,26 @@ For ideal four-wheel Ackermann geometry, the inner and outer front wheels requir
 
 Hence the inner wheel steers more sharply than the outer wheel so that the wheel axes approximately meet at a common instantaneous centre of rotation.
 
-## Dynamics / Gazebo physics
+#### Dynamics / Gazebo physics
 
 Gazebo does not move the robot by using the kinematic model. Instead, the Xacro defines physical masses and inertias, collision geometry, revolute/continuous joints, damping/friction, and wheel-ground contact
 properties. `gazebo_ros2_control` applies steering-position and rear-wheel-velocity commands, while Gazebo's rigid-body/contact physics determines the realised motion. Thus the bicycle model is used for motion reasoning and controller design, while Gazebo captures non-ideal physical effects such as inertia, contact forces and wheel slip.
 
-## Parameters
+#### Parameters
 
-  Parameter                                         Symbol                  Value
-  --------------------- ---------------------------------- ----------------------
-  Chassis (L_c × W_c × H)                                  ---   0.30 × 0.20 × 0.12 m
-  Wheelbase                                          \(L\)                 0.20 m
-  Track width                                        \(W\)                 0.16 m
-  Wheel radius                                       \(r\)                 0.04 m
-  Wheel width                                          ---                 0.03 m
-  Maximum steering        (`\delta`{=tex}\_{`\max`{=tex}})      ±35° (±0.611 rad)
-  Maximum speed                        (v\_{`\max`{=tex}})               0.50 m/s
-  Steering                                             ---            Front-wheel
-  Drive                                                ---             Rear-wheel
+| Parameter | Symbol | Value |
+|-----------|--------|-------|
+| Chassis (L_c × W_c × H) | - | 0.30 × 0.20 × 0.12 m |
+| Wheelbase | L | 0.20 m |
+| Track width | W | 0.16 m |
+| Wheel radius | r | 0.04 m |
+| Wheel width | - | 0.03 m |
+| Maximum steering | (`\delta`{=tex}\_{`\max`{=tex}}) | ±35° (±0.611 rad) |
+| Maximum speed | (v\_{`\max`{=tex}}) | 0.50 m/s |
+| Steering | - | Front wheel |
+| Drive | - | Rear wheel |
 
-## Assumptions
+#### Assumptions
 
 1.  Motion is planar, and roll and pitch are neglected in the analytical
     model.
@@ -299,7 +299,7 @@ properties. `gazebo_ros2_control` applies steering-position and rear-wheel-veloc
 7.  Aerodynamic effects are neglected because of the small scale and low maximum speed.
 8.  Inertia, damping, friction, contact forces and slip are handled by Gazebo rather than explicitly added to the analytical bicycle equations.
 
-## Effect of vehicle geometry and physical parameters on motion
+#### Effect of vehicle geometry and physical parameters on motion
 
 **Chassis size.**
 The (0.30`\times0.20`{=tex}`\times0.12`{=tex}) m chassis determines the physical footprint that must clear walls, door frames and coloured blocks. Although the bicycle model often treats the vehicle as a point at its reference position, the planner must account for the complete rectangular footprint. A larger or wider chassis reduces clearance through narrow openings and increases the risk that a collision-free centreline trajectory is not collision-free for the actual body. The chassis dimensions therefore directly affect feasible doorway approaches and the safety margin required around obstacles.
