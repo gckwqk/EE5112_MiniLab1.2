@@ -156,14 +156,14 @@ Ackermann steering is configuration in which the front wheels change their steer
 
 A common low-speed approximation is the bicycle model,
 
-\[ $\dot{x}$=v$\cos$$\theta$,$\qquad$
-$\dot{y}$=v$\sin$$\theta$,$\qquad$
+\[ $\dot{x}$=v$\cos$$\theta,\qquad
+\dot{y}=v\sin$$\theta$,$\qquad$
 $\dot{\theta}$=$\frac{v}{L}$$\tan$$\delta$, \]
 
-where (v) is longitudinal speed, ($\theta$) is heading, (L) is wheelbase, and ($\delta$) is the equivalent steering angle \[1\], \[3\]. The vehicle is non-holonomic: it cannot translate directly sideways or rotate in place.
+where $v$ is longitudinal speed, ($\theta$) is heading, $L$ is wheelbase, and ($\delta$) is the equivalent steering angle \[1\], \[3\]. The vehicle is non-holonomic: it cannot translate directly sideways or rotate in place.
 
 **Typical command inputs.**
-The natural high level inputs are forward and reverse speed (v) and steering angle ($\delta$). These high level inputs are then converted into steering-joint angles and driven-wheel velocities for control inputs. 
+The natural high level inputs are forward and reverse speed $v$ and steering angle ($\delta$). These high level inputs are then converted into steering-joint angles and driven-wheel velocities for control inputs. 
 
 **Suitable applications.**
 Ackermann steering is suitable for applications with low-to-moderate speed applications where rolling efficiency and tire wear matter more than high-speed cornering dynamics. Passenger cars and light trucks are the typical use case where the vehicles speed range minimizes tire scrubbing and allows for stable maneuvering. Mobile robotic platforms such as warehouse robots are suitable as well as it gives predictable and calculable turning radii, for ease of implementation of path-planning algorithm.
@@ -178,13 +178,13 @@ For an ideal two-wheel differential model,
 \[ v=$\frac{v_R+v_L}{2}$,$\qquad$
 $\omega$=$\frac{v_R-v_L}{W}$, \]
 
-where (v_L) and (v_R) are the left/right wheel linear velocities and (W) is the track width \[1\]. Equal velocities produce straight motion; unequal velocities produce a turn; opposite velocities allow
+where $v_L$ and $v_R$ are the left/right wheel linear velocities and $W$ is the track width \[1\]. Equal velocities produce straight motion; unequal velocities produce a turn; opposite velocities allow
 approximately zero-radius rotation. 
 
 Four-wheel skid-steer vehicles use the same principle but rely on lateral tyre slip during turning.
 
 **Typical command inputs.**
-The controller normally commands left and right wheel velocities ((v_L,v_R)), or equivalently a desired linear velocity (v) and yaw rate ($\omega$) that are converted into wheels angular velocity.
+The controller normally commands left and right wheel velocities ($v_L, v_R$), or equivalently a desired linear velocity $v$ and yaw rate ($\omega$) that are converted into wheels angular velocity.
 
 **Suitable applications.**
 Differential drive is suitable for applications that operates in areas with space constraints due to its ability to rotate in place and the need for compactness due to mechanical simplicity. Mobile robots such as vacuum and warehouse robots are suitable as they are cheap and mechanically simple to implement, and allows for maneuvering in tight spaces. Track vehicles such as tanks are ideal as well as the differential drive provides excellent traction and ability to pivot in place, as they are often deployed in rough, soft or unstable terrains.
@@ -240,7 +240,7 @@ The high-level control input is
 
 \[ $\mathbf{u}$=\[v,;$\delta$\]\^T, \]
 
-where (v) is longitudinal speed and ($\delta$) is the equivalent front steering angle. In Gazebo, these correspond to front-left/right steering position commands and rear-left/right wheel velocity commands. For straight rolling, rear-wheel angular speed is approximately ($\omega$\_w=v/r).
+where $v$ is longitudinal speed and ($\delta$) is the equivalent front steering angle. In Gazebo, these correspond to front-left/right steering position commands and rear-left/right wheel velocity commands. For straight rolling, rear-wheel angular speed is approximately ($\omega$\_w=v/r).
 
 #### Kinematics
 
@@ -248,8 +248,8 @@ For low operating speed (max 0.50 m.s), the four-wheel vehicle is represented by
 
 Assuming pure rolling and negligible lateral slip,
 
-\[ $\dot{x}$=v$\cos$$\theta$,$\qquad$
-$\dot{y}$=v$\sin$$\theta$,$\qquad$
+\[ $\dot{x}$=v$\cos$$\theta,\qquad
+\dot{y}=v\sin$$\theta$,$\qquad$
 $\dot{\theta}$=$\frac{v}{L}$$\tan$$\delta$. \]
 
 The centreline turning radius is
@@ -267,8 +267,8 @@ R\_{$\min$}=$\frac{0.20}{\tan35^\circ}$$\approx0.286$$\text{ m}$.
 For ideal four-wheel Ackermann geometry, the inner and outer front wheels require different angles:
 
 \[
-$\tan$$\delta$*{$\mathrm{inner}$}=$\frac{L}{R-W/2}$,$\qquad$
-$\tan$$\delta$*{$\mathrm{outer}$}=$\frac{L}{R+W/2}$.
+$\tan$$\delta*{\mathrm{inner}}=\frac{L}{R-W/2},\qquad
+\tan$$\delta$*{$\mathrm{outer}$}=$\frac{L}{R+W/2}$.
 \]
 
 Hence the inner wheel steers more sharply than the outer wheel so that the wheel axes approximately meet at a common instantaneous centre of rotation.
@@ -307,18 +307,18 @@ properties. `gazebo_ros2_control` applies steering-position and rear-wheel-veloc
 ## Effect of vehicle geometry and physical parameters on motion
 
 **Chassis size.**
-The (0.30$\times0.20$$\times0.12$) m chassis determines the physical footprint that must clear walls, door frames and coloured blocks. Although the bicycle model often treats the vehicle as a point at its reference position, the planner must account for the complete rectangular footprint. A larger or wider chassis reduces clearance through narrow openings and increases the risk that a collision-free centreline trajectory is not collision-free for the actual body. The chassis dimensions therefore directly affect feasible doorway approaches and the safety margin required around obstacles.
+The (0.30$\times0.20$$\times0.12) m chassis determines the physical footprint that must clear walls, door frames and coloured blocks. Although the bicycle model often treats the vehicle as a point at its reference position, the planner must account for the complete rectangular footprint. A larger or wider chassis reduces clearance through narrow openings and increases the risk that a collision-free centreline trajectory is not collision-free for the actual body. The chassis dimensions therefore directly affect feasible doorway approaches and the safety margin required around obstacles.
 
 **Wheelbase.**
 The wheelbase (L=0.20) m directly affects curvature through
 
-\[ R=$\frac{L}{\tan\delta}$. \]
+\[ R=\frac{L}{\tan\delta}. \]
 
-For a fixed steering angle, increasing (L) increases the turning radius and produces a wider, less agile turn. A shorter wheelbase allows tighter turns but generally produces faster heading change for the same
+For a fixed steering angle, increasing $L$ increases the turning radius and produces a wider, less agile turn. A shorter wheelbase allows tighter turns but generally produces faster heading change for the same
 speed and steering command. The MiniLab wheelbase must therefore be considered when generating paths between rooms and aligning the vehicle with door openings.
 
 **Steering limit.**
-The front steering joints are limited to ($\lvert$$\delta$$\rvert$$\leq35$\^$\circ$). This limits the maximum achievable curvature given by,
+The front steering joints are limited to (\lvert$$\delta$$\rvert$$\leq35$\^$\circ$). This limits the maximum achievable curvature given by,
 
 \[ $\kappa$\_{$\max$}=$\frac{\tan\delta_{\max}}{L}$,\]
 
