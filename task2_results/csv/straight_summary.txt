@@ -1,0 +1,26 @@
+EE5112 Task 2 Ackermann Trajectory Validation
+========================================
+
+Experiment: straight
+Duration: 4.000 s
+Commanded v: 0.120000 m/s
+Mean /odom speed: 0.036735 m/s
+Mean wheel-derived speed: 0.036713 m/s
+Equivalent steering: 0.000000 deg
+Left steering: 0.000000 deg
+Right steering: 0.000000 deg
+Theoretical bicycle radius: infinity
+
+COMMAND-INPUT BICYCLE MODEL
+---------------------------
+RMS position error: 0.193385 m
+Maximum position error: 0.332565 m
+Final position error: 0.332565 m
+Final heading error: 0.000033 deg
+
+MEASURED-INPUT BICYCLE MODEL
+----------------------------
+RMS position error: 0.001059 m
+Maximum position error: 0.001127 m
+Final position error: 0.001127 m
+Final heading error: 0.000033 deg
