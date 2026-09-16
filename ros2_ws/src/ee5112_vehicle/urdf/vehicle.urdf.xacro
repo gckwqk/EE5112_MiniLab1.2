@@ -78,8 +78,7 @@
 
 
   <!-- ========================================================= -->
-  <!-- MATERIALS (used by RViz - Gazebo needs its own tags,     -->
-  <!-- see the <gazebo reference="..."> blocks near the bottom) -->
+  <!-- MATERIALS                                                -->
   <!-- ========================================================= -->
 
   <material name="body_blue">
@@ -160,16 +159,12 @@
           ixx="${chassis_mass / 12.0 *
                  (chassis_width * chassis_width +
                   chassis_height * chassis_height)}"
-
           ixy="0.0"
           ixz="0.0"
-
           iyy="${chassis_mass / 12.0 *
                  (chassis_length * chassis_length +
                   chassis_height * chassis_height)}"
-
           iyz="0.0"
-
           izz="${chassis_mass / 12.0 *
                  (chassis_length * chassis_length +
                   chassis_width * chassis_width)}"/>
@@ -186,12 +181,15 @@
   <xacro:macro name="front_wheel"
                params="side x y">
 
+    <!-- Steering knuckle -->
+
     <link name="front_${side}_steering_link">
 
       <visual>
 
-        <origin xyz="0 0 0.025"
-                rpy="0 0 0"/>
+        <origin
+            xyz="0 0 0.025"
+            rpy="0 0 0"/>
 
         <geometry>
           <box size="0.025 0.025 0.070"/>
@@ -204,8 +202,9 @@
 
       <collision>
 
-        <origin xyz="0 0 0.025"
-                rpy="0 0 0"/>
+        <origin
+            xyz="0 0 0.025"
+            rpy="0 0 0"/>
 
         <geometry>
           <box size="0.025 0.025 0.070"/>
@@ -216,8 +215,9 @@
 
       <inertial>
 
-        <origin xyz="0 0 0.025"
-                rpy="0 0 0"/>
+        <origin
+            xyz="0 0 0.025"
+            rpy="0 0 0"/>
 
         <mass value="${knuckle_mass}"/>
 
@@ -273,9 +273,11 @@
             rpy="${pi / 2.0} 0 0"/>
 
         <geometry>
+
           <cylinder
               radius="${wheel_radius}"
               length="${wheel_width}"/>
+
         </geometry>
 
         <material name="wheel_black"/>
@@ -290,9 +292,11 @@
             rpy="${pi / 2.0} 0 0"/>
 
         <geometry>
+
           <cylinder
               radius="${wheel_radius}"
               length="${wheel_width}"/>
+
         </geometry>
 
       </collision>
@@ -310,17 +314,13 @@
             ixx="${wheel_mass *
                    (3.0 * wheel_radius * wheel_radius +
                     wheel_width * wheel_width) / 12.0}"
-
             ixy="0.0"
             ixz="0.0"
-
             iyy="${0.5 *
                    wheel_mass *
                    wheel_radius *
                    wheel_radius}"
-
             iyz="0.0"
-
             izz="${wheel_mass *
                    (3.0 * wheel_radius * wheel_radius +
                     wheel_width * wheel_width) / 12.0}"/>
@@ -339,8 +339,9 @@
       <parent link="front_${side}_steering_link"/>
       <child link="front_${side}_wheel_link"/>
 
-      <origin xyz="0 0 0"
-              rpy="0 0 0"/>
+      <origin
+          xyz="0 0 0"
+          rpy="0 0 0"/>
 
       <axis xyz="0 1 0"/>
 
@@ -369,9 +370,11 @@
             rpy="${pi / 2.0} 0 0"/>
 
         <geometry>
+
           <cylinder
               radius="${wheel_radius}"
               length="${wheel_width}"/>
+
         </geometry>
 
         <material name="wheel_black"/>
@@ -386,9 +389,11 @@
             rpy="${pi / 2.0} 0 0"/>
 
         <geometry>
+
           <cylinder
               radius="${wheel_radius}"
               length="${wheel_width}"/>
+
         </geometry>
 
       </collision>
@@ -406,17 +411,13 @@
             ixx="${wheel_mass *
                    (3.0 * wheel_radius * wheel_radius +
                     wheel_width * wheel_width) / 12.0}"
-
             ixy="0.0"
             ixz="0.0"
-
             iyy="${0.5 *
                    wheel_mass *
                    wheel_radius *
                    wheel_radius}"
-
             iyz="0.0"
-
             izz="${wheel_mass *
                    (3.0 * wheel_radius * wheel_radius +
                     wheel_width * wheel_width) / 12.0}"/>
@@ -499,9 +500,11 @@
           rpy="0 ${pi / 2.0} 0"/>
 
       <geometry>
+
         <cylinder
             radius="0.012"
             length="0.010"/>
+
       </geometry>
 
       <material name="camera_lens_colour"/>
@@ -535,10 +538,9 @@
   </link>
 
 
-  <!-- Required base_link -> camera_link transform -->
-
-  <joint name="camera_joint"
-         type="fixed">
+  <joint
+      name="camera_joint"
+      type="fixed">
 
     <parent link="base_link"/>
     <child link="camera_link"/>
@@ -559,9 +561,11 @@
     <visual>
 
       <geometry>
+
         <cylinder
             radius="0.025"
             length="0.040"/>
+
       </geometry>
 
       <material name="sensor_dark"/>
@@ -576,9 +580,11 @@
           rpy="0 0 0"/>
 
       <geometry>
+
         <cylinder
             radius="0.008"
             length="0.030"/>
+
       </geometry>
 
       <material name="steering_grey"/>
@@ -589,9 +595,11 @@
     <collision>
 
       <geometry>
+
         <cylinder
             radius="0.025"
             length="0.040"/>
+
       </geometry>
 
     </collision>
@@ -614,10 +622,9 @@
   </link>
 
 
-  <!-- Required base_link -> laser_link transform -->
-
-  <joint name="laser_joint"
-         type="fixed">
+  <joint
+      name="laser_joint"
+      type="fixed">
 
     <parent link="base_link"/>
     <child link="laser_link"/>
@@ -633,79 +640,99 @@
   <!-- GAZEBO VISUAL MATERIALS                                  -->
   <!-- ========================================================= -->
 
-  <!--
-       Gazebo classic's legacy URDF "gazebo extension" converter
-       expects <material> under <gazebo reference="..."> to be a
-       PLAIN TEXT built-in Ogre material script name (e.g.
-       "Gazebo/Blue"), not nested <ambient>/<diffuse> elements and
-       not wrapped in a named <visual> tag - both of those forms
-       were silently dropped, which is why the model kept
-       rendering grey. Each link below uses one of Gazebo's
-       built-in material names as the closest match to the
-       original custom RGBA colors.
-
-       Each link also gets exactly ONE <gazebo reference="...">
-       block (material + friction + sensor all merged together).
-       Multiple separate <gazebo reference> blocks for the same
-       link are not guaranteed to merge cleanly in Gazebo classic.
-  -->
+  <!-- Blue chassis -->
 
   <gazebo reference="base_link">
+
     <material>Gazebo/Blue</material>
+
   </gazebo>
+
+
+  <!-- Grey steering knuckles -->
 
   <gazebo reference="front_left_steering_link">
+
     <material>Gazebo/Grey</material>
+
   </gazebo>
+
 
   <gazebo reference="front_right_steering_link">
+
     <material>Gazebo/Grey</material>
-  </gazebo>
 
-  <gazebo reference="front_left_wheel_link">
-    <material>Gazebo/FlatBlack</material>
-    <mu1>1.0</mu1>
-    <mu2>1.0</mu2>
-    <kp>1000000.0</kp>
-    <kd>1.0</kd>
-  </gazebo>
-
-  <gazebo reference="front_right_wheel_link">
-    <material>Gazebo/FlatBlack</material>
-    <mu1>1.0</mu1>
-    <mu2>1.0</mu2>
-    <kp>1000000.0</kp>
-    <kd>1.0</kd>
-  </gazebo>
-
-  <gazebo reference="rear_left_wheel_link">
-    <material>Gazebo/FlatBlack</material>
-    <mu1>1.0</mu1>
-    <mu2>1.0</mu2>
-    <kp>1000000.0</kp>
-    <kd>1.0</kd>
-  </gazebo>
-
-  <gazebo reference="rear_right_wheel_link">
-    <material>Gazebo/FlatBlack</material>
-    <mu1>1.0</mu1>
-    <mu2>1.0</mu2>
-    <kp>1000000.0</kp>
-    <kd>1.0</kd>
   </gazebo>
 
 
   <!-- ========================================================= -->
-  <!-- GAZEBO RGB CAMERA (material + sensor merged into ONE      -->
-  <!-- <gazebo reference="camera_link"> block)                  -->
+  <!-- WHEEL MATERIALS AND CONTACT                              -->
+  <!-- ========================================================= -->
+
+  <gazebo reference="front_left_wheel_link">
+
+    <material>Gazebo/FlatBlack</material>
+
+    <mu1>1.0</mu1>
+    <mu2>1.0</mu2>
+
+    <kp>1000000.0</kp>
+    <kd>1.0</kd>
+
+  </gazebo>
+
+
+  <gazebo reference="front_right_wheel_link">
+
+    <material>Gazebo/FlatBlack</material>
+
+    <mu1>1.0</mu1>
+    <mu2>1.0</mu2>
+
+    <kp>1000000.0</kp>
+    <kd>1.0</kd>
+
+  </gazebo>
+
+
+  <gazebo reference="rear_left_wheel_link">
+
+    <material>Gazebo/FlatBlack</material>
+
+    <mu1>1.0</mu1>
+    <mu2>1.0</mu2>
+
+    <kp>1000000.0</kp>
+    <kd>1.0</kd>
+
+  </gazebo>
+
+
+  <gazebo reference="rear_right_wheel_link">
+
+    <material>Gazebo/FlatBlack</material>
+
+    <mu1>1.0</mu1>
+    <mu2>1.0</mu2>
+
+    <kp>1000000.0</kp>
+    <kd>1.0</kd>
+
+  </gazebo>
+
+
+  <!-- ========================================================= -->
+  <!-- GAZEBO RGB CAMERA                                        -->
   <!-- ========================================================= -->
 
   <gazebo reference="camera_link">
 
     <material>Gazebo/DarkGrey</material>
 
-    <sensor name="front_camera"
-            type="camera">
+
+    <sensor
+        name="front_camera"
+        type="camera">
 
       <always_on>true</always_on>
 
@@ -718,15 +745,24 @@
 
         <horizontal_fov>1.3962634</horizontal_fov>
 
+
         <image>
+
           <width>640</width>
+
           <height>480</height>
+
           <format>R8G8B8</format>
+
         </image>
 
+
         <clip>
+
           <near>0.02</near>
+
           <far>10.0</far>
+
         </clip>
 
       </camera>
@@ -737,7 +773,9 @@
           filename="libgazebo_ros_camera.so">
 
         <ros>
+
           <namespace>/camera/color</namespace>
+
         </ros>
 
         <camera_name>camera</camera_name>
@@ -755,39 +793,29 @@
   <!-- GAZEBO 2D LIDAR                                          -->
   <!-- ========================================================= -->
 
-  <!--
-       This is the ONLY new functional addition relative to the
-       verified camera + controller configuration.
-
-       Output:
-         /scan
-
-       Type:
-         sensor_msgs/msg/LaserScan
-
-       Frame:
-         laser_link
-  -->
-
   <gazebo reference="laser_link">
 
     <material>Gazebo/DarkGrey</material>
 
-    <sensor name="lidar"
-            type="ray">
+
+    <sensor
+        name="lidar"
+        type="ray">
 
       <always_on>true</always_on>
 
       <update_rate>10.0</update_rate>
 
+
+      <!-- Keep LiDAR rays visible -->
+
       <visualize>true</visualize>
+
 
       <pose>0 0 0 0 0 0</pose>
 
 
       <ray>
-
-        <!-- 360 degree horizontal scan -->
 
         <scan>
 
@@ -806,8 +834,6 @@
         </scan>
 
 
-        <!-- Measurement range -->
-
         <range>
 
           <min>0.05</min>
@@ -818,8 +844,6 @@
 
         </range>
 
-
-        <!-- Small Gaussian noise -->
 
         <noise>
 
@@ -833,8 +857,6 @@
 
       </ray>
 
-
-      <!-- ROS 2 LaserScan plugin -->
 
       <plugin
           name="laser_controller"
@@ -863,20 +885,9 @@
   <!-- ROS 2 CONTROL                                            -->
   <!-- ========================================================= -->
 
-  <!--
-       IMPORTANT:
-       This section is retained in the same form as the verified
-       Milestone 4 / camera-working version.
-  -->
-
   <ros2_control
       name="GazeboSystem"
       type="system">
-
-
-    <!-- ======================================================= -->
-    <!-- HARDWARE PLUGIN                                        -->
-    <!-- ======================================================= -->
 
     <hardware>
 
@@ -885,9 +896,7 @@
     </hardware>
 
 
-    <!-- ======================================================= -->
-    <!-- FRONT LEFT STEERING                                    -->
-    <!-- ======================================================= -->
+    <!-- Front-left steering -->
 
     <joint name="front_left_steering_joint">
 
@@ -906,9 +915,7 @@
     </joint>
 
 
-    <!-- ======================================================= -->
-    <!-- FRONT RIGHT STEERING                                   -->
-    <!-- ======================================================= -->
+    <!-- Front-right steering -->
 
     <joint name="front_right_steering_joint">
 
@@ -927,9 +934,7 @@
     </joint>
 
 
-    <!-- ======================================================= -->
-    <!-- REAR LEFT DRIVE                                        -->
-    <!-- ======================================================= -->
+    <!-- Rear-left drive -->
 
     <joint name="rear_left_wheel_joint">
 
@@ -942,9 +947,7 @@
     </joint>
 
 
-    <!-- ======================================================= -->
-    <!-- REAR RIGHT DRIVE                                       -->
-    <!-- ======================================================= -->
+    <!-- Rear-right drive -->
 
     <joint name="rear_right_wheel_joint">
 
@@ -957,9 +960,7 @@
     </joint>
 
 
-    <!-- ======================================================= -->
-    <!-- FRONT LEFT FREE-ROLLING WHEEL                          -->
-    <!-- ======================================================= -->
+    <!-- Front-left free rolling -->
 
     <joint name="front_left_wheel_joint">
 
@@ -970,9 +971,7 @@
     </joint>
 
 
-    <!-- ======================================================= -->
-    <!-- FRONT RIGHT FREE-ROLLING WHEEL                         -->
-    <!-- ======================================================= -->
+    <!-- Front-right free rolling -->
 
     <joint name="front_right_wheel_joint">
 
@@ -981,7 +980,6 @@
       <state_interface name="velocity"/>
 
     </joint>
-
 
   </ros2_control>
 
@@ -997,6 +995,87 @@
         filename="libgazebo_ros2_control.so">
 
       <parameters>$(arg controllers_file)</parameters>
+
+    </plugin>
+
+  </gazebo>
+
+
+  <!-- ========================================================= -->
+  <!-- GAZEBO GROUND-TRUTH ODOMETRY                             -->
+  <!-- ========================================================= -->
+
+  <!--
+       Task 2 trajectory-analysis pose source.
+
+       IMPORTANT:
+       Gazebo Classic collapses the fixed base_link into
+       base_footprint during URDF -> SDF conversion.
+
+       Therefore P3D must track base_footprint rather than
+       base_link.
+
+       Output:
+           /odom
+
+       Message:
+           nav_msgs/msg/Odometry
+
+       This is ground-truth simulation data and is intended only
+       for Task 2 model verification / trajectory analysis.
+  -->
+
+  <gazebo>
+
+    <plugin
+        name="ground_truth_odometry"
+        filename="libgazebo_ros_p3d.so">
+
+      <ros>
+
+        <namespace>/</namespace>
+
+        <!--
+             The P3D plugin internally publishes "odom".
+             Explicitly remap it to /odom.
+        -->
+
+        <remapping>odom:=odom</remapping>
+
+      </ros>
+
+
+      <!--
+           Track the Gazebo physics root.
+
+           Do NOT change this back to base_link unless
+           base_link is explicitly preserved in the generated
+           Gazebo SDF.
+      -->
+
+      <body_name>base_footprint</body_name>
+
+
+      <!-- World-coordinate ground truth -->
+
+      <frame_name>world</frame_name>
+
+
+      <!-- 50 Hz trajectory sampling -->
+
+      <update_rate>50.0</update_rate>
+
+
+      <!-- No artificial pose offsets -->
+
+      <xyz_offset>0 0 0</xyz_offset>
+
+      <rpy_offset>0 0 0</rpy_offset>
+
+
+      <!-- Ground truth: no measurement noise -->
+
+      <gaussian_noise>0.0</gaussian_noise>
 
     </plugin>
 
