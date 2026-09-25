@@ -1,0 +1,17 @@
+cmd_vel_to_ackermann:
+  ros__parameters:
+    use_sim_time: true
+    cmd_vel_topic: /cmd_vel
+    steering_topic: /steering_controller/commands
+    wheel_topic: /rear_wheel_controller/commands
+    wheelbase: 0.20
+    track_width: 0.16
+    wheel_radius: 0.04
+    max_steering_deg: 35.0  # Limit on EACH actual steering joint.
+    max_speed: 0.50        # Maximum chassis-centre planar speed, m/s.
+    max_wheel_speed: 12.50 # Additional conservative rear-wheel cap, rad/s.
+    max_acceleration: 0.40 # Longitudinal ramp, m/s^2; stops override ramp.
+    max_steering_rate: 1.50 # rad/s, below the model's 2.0 rad/s joint limit.
+    command_timeout: 0.50  # Seconds of wall time without a valid command.
+    min_linear_speed: 0.0001
+    publish_rate: 50.0

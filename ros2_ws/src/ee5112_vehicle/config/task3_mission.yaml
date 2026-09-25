@@ -1,0 +1,90 @@
+# Task 3 owner: Mohammad Asif Bin Abdul Sahid (A0313732M).
+task3_mission:
+  ros__parameters:
+    # arena_file defaults to config/MiniLab1.2_platform_specs_5112.json.
+
+    # ROS interfaces
+    use_sim_time: true
+    command_topic: /task3/command
+    speech_topic: /speech_command
+    detections_topic: /detected_colours
+    odom_topic: /odom
+    map_frame: map
+    nav_action: /follow_path
+    planner_action: /compute_path_to_pose
+    planner_id: GridBased
+    controller_id: FollowPath
+    reverse_controller_id: ReversePath
+    nav_cmd_topic: /task3/nav_cmd_vel
+    output_cmd_topic: /cmd_vel
+    source_map_topic: /map
+    navigation_map_topic: /task3/navigation_map
+
+    # Retreat: own control, then heading-ranked adjacent controls.
+    # Map-frame base_link [x m, y m, yaw rad]; corridor targets are allowed.
+    room1_control_pose: [0.69, 0.3, 1.5707963267948966]
+    room2_control_pose: [2.1, 0.3, 1.5707963267948966]
+    room3_control_pose: [3.465, 0.3, 1.5707963267948966]
+    room_control_goal_checker_id: room_control_goal_checker
+    room_control_xy_tolerance_m: 0.08
+    room_control_heading_tolerance_rad: 0.35
+    room_control_settle_margin_m: 0.02
+    room_retreat_timeout_s: 120.0
+    room_retreat_max_attempts: 3
+    direction_deadband_m_s: 0.005
+
+    # Final approach: plan to entry, stop, then follow a fixed line toward the box.
+    # Minimum length is 0.05 m; entry tolerances add 0.15 m with these settings.
+    # The reference tail guides lookahead; the robot stops before that tail.
+    final_approach_enabled: true
+    final_controller_id: FinalApproach
+    alignment_goal_checker_id: alignment_goal_checker
+    final_approach_straight_m: 0.05
+    final_approach_speed_m_s: 0.15
+    final_tracking_extension_m: 0.1
+    final_stop_tolerance_m: 0.03
+    final_entry_xy_tolerance_m: 0.1
+    final_entry_settle_margin_m: 0.02
+    final_entry_heading_tolerance_rad: 0.52
+    final_cross_track_limit_m: 0.08
+    final_heading_limit_rad: 0.7
+    goal_checker_id: goal_checker
+    minimum_direction_leg_m: 0.08
+
+    # Camera confirmation: fresh detection AND base_link distance <= 0.50 m.
+    # observation_radius_m is the target distance; confirmation_hold_s debounces.
+    observation_radius_m: 0.4
+    confirmation_radius_m: 0.5
+    confirmation_hold_s: 0.3
+
+    # Limits: mission speed cap; converter additionally enforces wheel/joint limits.
+    # 35 degrees applies to EACH front wheel, giving minimum rear radius 0.3656 m.
+    max_speed_m_s: 0.4
+    controller_max_steering_deg: 35.0
+
+    # Deadlines use simulation time; sensor/action cleanup timeouts use wall time.
+    # Mission deadline includes every target, retreat and planning stage.
+    mission_timeout_s: 300.0
+    goal_timeout_s: 250.0
+    final_approach_timeout_s: 60.0
+    observation_timeout_s: 4.0
+    goal_response_timeout_s: 3.0
+    cancel_timeout_s: 4.0
+    sensor_failure_timeout_s: 3.0
+    sensor_freshness_s: 0.5
+    tf_max_age_s: 0.4
+    tf_future_tolerance_s: 0.2
+    cmd_timeout_s: 0.3
+    stop_settle_s: 0.3
+
+    # Planning: choose best of 2 valid routes, or one after the 3 s soft budget.
+    # With no valid route, retain the full 12 s search. In-flight calls finish first.
+    # Retreat planning takes the first valid control in priority order.
+    max_goal_attempts: 12
+    planning_max_candidates: 15
+    planning_budget_s: 12.0
+    planning_feasible_candidates: 2
+    planning_selection_budget_s: 3.0
+    planning_result_timeout_s: 5.0
+    route_progress_timeout_s: 15.0
+    route_progress_min_m: 0.03

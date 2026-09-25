@@ -1,0 +1,58 @@
+# EE5112 Task 3 - ROS 2 Humble / Gazebo Classic localisation.
+# Initial tuning for the supplied 4.20 x 2.60 m wall map.
+amcl:
+  ros__parameters:
+    use_sim_time: true
+    global_frame_id: map
+    odom_frame_id: odom
+    base_frame_id: base_footprint
+    scan_topic: /scan
+    tf_broadcast: true
+    transform_tolerance: 0.5
+
+    # Incremental planar odometry proposal model. This does not command
+    # the car or imply that the Ackermann vehicle can rotate in place.
+    robot_model_type: nav2_amcl::DifferentialMotionModel
+    alpha1: 0.05
+    alpha2: 0.05
+    alpha3: 0.05
+    alpha4: 0.05
+    min_particles: 500
+    max_particles: 2000
+    pf_err: 0.05
+    pf_z: 0.99
+    resample_interval: 1
+    update_min_d: 0.02
+    update_min_a: 0.03
+    recovery_alpha_fast: 0.0
+    recovery_alpha_slow: 0.0
+    save_pose_rate: 0.5
+
+    laser_model_type: likelihood_field
+    laser_min_range: 0.05
+    laser_max_range: 8.0
+    max_beams: 90
+    laser_likelihood_max_dist: 0.5
+    sigma_hit: 0.05
+    z_hit: 0.9
+    z_rand: 0.1
+    z_short: 0.0
+    z_max: 0.0
+    do_beamskip: false
+
+    # Applies when arena.launch.py spawns the vehicle at START.
+    set_initial_pose: true
+    always_reset_initial_pose: false
+    initial_pose:
+      x: 0.55
+      y: 0.35
+      z: 0.0
+      yaw: 0.0
+
+map_server:
+  ros__parameters:
+    use_sim_time: true
+    frame_id: map
+    topic_name: map
+    # Overridden with an absolute filename by amcl.launch.py.
+    yaml_filename: ''

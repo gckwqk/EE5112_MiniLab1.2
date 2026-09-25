@@ -3,9 +3,32 @@
 <package format="3">
   <name>ee5112_vehicle</name>
   <version>0.0.0</version>
-  <description>TODO: Package description</description>
-  <maintainer email="gckgck71@gmail.com">gck</maintainer>
-  <license>TODO: License declaration</license>
+  <description>EE5112 Group 13 Ackermann simulation, trajectory validation and autonomous colour search.</description>
+  <maintainer email="gckgck71@gmail.com">EE5112 Group 13</maintainer>
+  <license>MIT</license>
+
+  <buildtool_depend>ament_python</buildtool_depend>
+  <exec_depend>ament_index_python</exec_depend>
+  <exec_depend>launch</exec_depend>
+  <exec_depend>launch_ros</exec_depend>
+  <exec_depend>rcl_interfaces</exec_depend>
+  <exec_depend>action_msgs</exec_depend>
+  <exec_depend>lifecycle_msgs</exec_depend>
+  <exec_depend>nav2_msgs</exec_depend>
+  <exec_depend>nav2_map_server</exec_depend>
+  <exec_depend>nav2_amcl</exec_depend>
+  <exec_depend>cv_bridge</exec_depend>
+  <exec_depend>python3-opencv</exec_depend>
+  <exec_depend>python3-numpy</exec_depend>
+  <exec_depend>python3-yaml</exec_depend>
+  <exec_depend>python3-matplotlib</exec_depend>
+  <exec_depend>xacro</exec_depend>
+  <exec_depend>gazebo_ros</exec_depend>
+  <exec_depend>gazebo_plugins</exec_depend>
+  <exec_depend>gazebo_ros2_control</exec_depend>
+  <exec_depend>controller_manager</exec_depend>
+  <exec_depend>joint_state_broadcaster</exec_depend>
+  <exec_depend>forward_command_controller</exec_depend>
 
   <depend>rclpy</depend>
   <depend>geometry_msgs</depend>
@@ -14,6 +37,15 @@
   <depend>std_msgs</depend>
   <depend>ackermann_msgs</depend>
   <depend>robot_state_publisher</depend>
+  <depend>tf2_ros</depend>
+  <depend>nav2_common</depend>
+  <depend>nav2_planner</depend>
+  <depend>nav2_smac_planner</depend>
+  <depend>nav2_controller</depend>
+  <depend>nav2_regulated_pure_pursuit_controller</depend>
+  <depend>nav2_bt_navigator</depend>
+  <depend>nav2_behavior_tree</depend>
+  <depend>nav2_lifecycle_manager</depend>
 
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>

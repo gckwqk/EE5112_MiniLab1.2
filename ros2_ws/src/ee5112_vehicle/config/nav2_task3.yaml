@@ -1,0 +1,232 @@
+# Task 3 / ROS 2 Humble. Derived from the supplied Stage 1 profile.
+# Dubins box routes; reverse-only retreat is a swapped-endpoint Dubins request.
+# Static maps include low blocks; goals refer to nav_base.
+# Task 3 previews candidate paths, then follows the selected path without periodic replanning.
+# Nav2 velocity is remapped to /task3/nav_cmd_vel in task3_nav2.launch.py.
+# The mission node alone forwards permitted motion to the existing /cmd_vel converter.
+planner_server:
+  ros__parameters:
+    use_sim_time: true
+    expected_planner_frequency: 1.0
+    planner_plugins:
+    - GridBased
+    GridBased:
+      plugin: nav2_smac_planner/SmacPlannerHybrid
+      tolerance: 0.005
+      downsample_costmap: false
+      downsampling_factor: 1
+      allow_unknown: false
+      max_iterations: 1000000
+      max_on_approach_iterations: 1000
+      max_planning_time: 2.0
+      motion_model_for_search: DUBIN  # Forward search; retreat swaps endpoints.
+      angle_quantization_bins: 72
+      minimum_turning_radius: 0.38  # Planning clearance; control uses full 35-degree steering.
+      analytic_expansion_ratio: 3.5
+      analytic_expansion_max_length: 2.0
+      change_penalty: 0.0
+      non_straight_penalty: 1.2
+      cost_penalty: 2.0
+      retrospective_penalty: 0.015
+      lookup_table_size: 3.0
+      cache_obstacle_heuristic: false
+      smooth_path: false
+controller_server:
+  ros__parameters:
+    use_sim_time: true
+    odom_topic: /odom
+    controller_frequency: 20.0
+    min_x_velocity_threshold: 0.001
+    min_y_velocity_threshold: 0.001
+    min_theta_velocity_threshold: 0.001
+    failure_tolerance: 0.0
+    progress_checker_plugin: progress_checker
+    goal_checker_plugins:
+    - goal_checker
+    - cusp_goal_checker
+    - alignment_goal_checker
+    - room_control_goal_checker
+    controller_plugins:
+    - FollowPath
+    - ReversePath
+    - FinalApproach
+    progress_checker:
+      plugin: nav2_controller::SimpleProgressChecker
+      required_movement_radius: 0.03  # Allow slow, continuing final-approach motion.
+      movement_time_allowance: 15.0
+    goal_checker:
+      plugin: nav2_controller::SimpleGoalChecker
+      xy_goal_tolerance: 0.02  # Direct-viewing/linear-tail goal checker; mission owns camera confirmation.
+      # Heading is guided while moving; never require an in-place final turn.
+      # For the final line, the mission stops at the viewing point BEFORE
+      # the lookahead-only reference endpoint sent to this goal checker.
+      yaw_goal_tolerance: 3.141592653589793
+      stateful: false
+    cusp_goal_checker:
+      plugin: nav2_controller::SimpleGoalChecker
+      xy_goal_tolerance: 0.025  # Match mission cusp_xy_tolerance_m.
+      yaw_goal_tolerance: 0.20  # Match mission cusp_heading_tolerance_rad; never spin.
+      stateful: false
+    alignment_goal_checker:
+      plugin: nav2_controller::SimpleGoalChecker
+      xy_goal_tolerance: 0.08  # Nav2 arrival is 8 cm; the mission permits 10 cm plus a 2 cm settling margin.
+      yaw_goal_tolerance: 0.52  # Match mission final_entry_heading_tolerance_rad.
+      stateful: false
+    room_control_goal_checker:
+      plugin: nav2_controller::SimpleGoalChecker
+      xy_goal_tolerance: 0.08  # Match mission room_control_xy_tolerance_m.
+      yaw_goal_tolerance: 0.35  # Match mission room_control_heading_tolerance_rad.
+      stateful: false
+    # RPP follows the selected route; the mission enforces its direction.
+    FollowPath:
+      plugin: nav2_regulated_pure_pursuit_controller::RegulatedPurePursuitController
+      desired_linear_vel: 0.4
+      # Fixed 0.22 m lookahead reduces steering sensitivity to short path segments.
+      lookahead_dist: 0.22
+      use_velocity_scaled_lookahead_dist: false  # Fixed lookahead; time/min/max options omitted.
+      transform_tolerance: 0.3
+      min_approach_linear_velocity: 0.3
+      approach_velocity_scaling_dist: 0.25  # Start goal slowdown closer to the viewing pose.
+      use_collision_detection: false  # Existing static-arena tuning; no RPP collision projection.
+      use_regulated_linear_velocity_scaling: true
+      regulated_linear_scaling_min_radius: 0.6
+      regulated_linear_scaling_min_speed: 0.05
+      use_cost_regulated_linear_velocity_scaling: false
+      use_rotate_to_heading: false
+      allow_reversing: true
+      # Bound pruning near overlapping forward/reverse sections.
+      max_robot_pose_search_dist: 0.35
+      use_interpolation: true
+    # Same tracker under the existing reverse controller ID.
+    ReversePath:
+      plugin: nav2_regulated_pure_pursuit_controller::RegulatedPurePursuitController
+      desired_linear_vel: 0.4
+      # Fixed 0.22 m lookahead reduces steering sensitivity to short path segments.
+      lookahead_dist: 0.22
+      use_velocity_scaled_lookahead_dist: false  # Fixed lookahead; time/min/max options omitted.
+      transform_tolerance: 0.3
+      min_approach_linear_velocity: 0.3
+      approach_velocity_scaling_dist: 0.25  # Start goal slowdown closer to the viewing pose.
+      use_collision_detection: false  # Existing static-arena tuning; no RPP collision projection.
+      use_regulated_linear_velocity_scaling: true
+      regulated_linear_scaling_min_radius: 0.6
+      regulated_linear_scaling_min_speed: 0.05
+      use_cost_regulated_linear_velocity_scaling: false
+      use_rotate_to_heading: false
+      allow_reversing: true
+      # Bound pruning near overlapping forward/reverse sections.
+      max_robot_pose_search_dist: 0.35
+      use_interpolation: true
+    # Dedicated controller for the frozen straight approach. Its reference has
+    # a tail configured by final_tracking_extension_m; the mission owns the stop.
+    FinalApproach:
+      plugin: nav2_regulated_pure_pursuit_controller::RegulatedPurePursuitController
+      desired_linear_vel: 0.4
+      # Keep a forward reference through the viewing stop with room at Purple.
+      lookahead_dist: 0.20
+      use_velocity_scaled_lookahead_dist: false  # Fixed lookahead; time/min/max options omitted.
+      transform_tolerance: 0.3
+      min_approach_linear_velocity: 0.3
+      approach_velocity_scaling_dist: 0.25  # Distance to reference tail; mission owns the viewing stop.
+      use_collision_detection: false  # Existing static-arena tuning; no RPP collision projection.
+      use_regulated_linear_velocity_scaling: true
+      regulated_linear_scaling_min_radius: 0.6
+      regulated_linear_scaling_min_speed: 0.05
+      use_cost_regulated_linear_velocity_scaling: false
+      use_rotate_to_heading: false
+      allow_reversing: false
+      # Bound pruning near overlapping forward/reverse sections.
+      max_robot_pose_search_dist: 0.35
+      use_interpolation: true
+global_costmap:
+  global_costmap:
+    ros__parameters:
+      use_sim_time: true
+      global_frame: map
+      robot_base_frame: nav_base
+      transform_tolerance: 0.3
+      update_frequency: 5.0
+      publish_frequency: 2.0
+      resolution: 0.01
+      track_unknown_space: true
+      rolling_window: false
+      footprint: '[[-0.05, -0.12], [0.25, -0.12], [0.25, 0.12], [-0.05, 0.12]]'
+      footprint_padding: 0.01
+      always_send_full_costmap: true
+      plugins:
+      - static_layer
+      - obstacle_layer
+      - inflation_layer
+      static_layer:
+        plugin: nav2_costmap_2d::StaticLayer
+        map_topic: /task3/navigation_map
+        map_subscribe_transient_local: true
+        subscribe_to_updates: true
+      obstacle_layer:
+        plugin: nav2_costmap_2d::ObstacleLayer
+        enabled: true
+        observation_sources: scan
+        scan:
+          topic: /scan
+          data_type: LaserScan
+          marking: true
+          clearing: true
+          min_obstacle_height: 0.0
+          max_obstacle_height: 1.0
+          obstacle_min_range: 0.05
+          obstacle_max_range: 7.5
+          raytrace_min_range: 0.05
+          raytrace_max_range: 8.0
+          inf_is_valid: true
+          expected_update_rate: 0.5
+      inflation_layer:
+        plugin: nav2_costmap_2d::InflationLayer
+        inflation_radius: 0.5
+        cost_scaling_factor: 8.0
+local_costmap:
+  local_costmap:
+    ros__parameters:
+      use_sim_time: true
+      global_frame: odom
+      robot_base_frame: nav_base
+      transform_tolerance: 0.3
+      update_frequency: 10.0
+      publish_frequency: 5.0
+      rolling_window: true
+      width: 3
+      height: 3
+      resolution: 0.01
+      track_unknown_space: false
+      footprint: '[[-0.05, -0.12], [0.25, -0.12], [0.25, 0.12], [-0.05, 0.12]]'
+      footprint_padding: 0.01
+      always_send_full_costmap: true
+      plugins:
+      - static_layer
+      - obstacle_layer
+      - inflation_layer
+      static_layer:
+        plugin: nav2_costmap_2d::StaticLayer
+        map_topic: /task3/navigation_map
+        map_subscribe_transient_local: true
+        subscribe_to_updates: true
+      obstacle_layer:
+        plugin: nav2_costmap_2d::ObstacleLayer
+        enabled: true
+        observation_sources: scan
+        scan:
+          topic: /scan
+          data_type: LaserScan
+          marking: true
+          clearing: true
+          min_obstacle_height: 0.0
+          max_obstacle_height: 1.0
+          obstacle_min_range: 0.05
+          obstacle_max_range: 7.5
+          raytrace_min_range: 0.05
+          raytrace_max_range: 8.0
+          inf_is_valid: true
+          expected_update_rate: 0.5
+      inflation_layer:
+        plugin: nav2_costmap_2d::InflationLayer
+        inflation_radius: 0.5
+        cost_scaling_factor: 8.0

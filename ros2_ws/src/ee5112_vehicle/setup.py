@@ -111,9 +111,28 @@ setup(
                 'config'
             ),
 
-            glob(
-                'config/*'
-            )
+            glob('config/*.yaml') + glob('config/*.json') + glob('config/*.xml')
+        ),
+
+        # ------------------------------------------------------
+        # ROS occupancy maps (keep each YAML beside its image)
+        # ------------------------------------------------------
+
+        (
+            os.path.join('share', package_name, 'maps'),
+            glob('maps/*.yaml')
+            + glob('maps/*.pgm')
+            + glob('maps/*.png')
+        ),
+
+
+        # ------------------------------------------------------
+        # Helper scripts launched from the package share folder
+        # ------------------------------------------------------
+
+        (
+            os.path.join('share', package_name, 'scripts'),
+            glob('scripts/*.py')
         ),
 
     ],

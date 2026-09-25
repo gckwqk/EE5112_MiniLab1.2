@@ -1,0 +1,9 @@
+<!-- Auxiliary Nav2 navigator tree. The Task 3 mission calls planner/controller actions directly. -->
+<root main_tree_to_execute="MainTree">
+  <BehaviorTree ID="MainTree">
+    <Sequence name="PlanOnceAndFollow">
+      <ComputePathThroughPoses goals="{goals}" path="{path}" planner_id="GridBased"/>
+      <FollowPath path="{path}" controller_id="FollowPath" goal_checker_id="goal_checker"/>
+    </Sequence>
+  </BehaviorTree>
+</root>

@@ -28,8 +28,7 @@ Implemented Task 2 uses ROS 2 Humble and Gazebo Classic 11. Required packages in
 - `robot_state_publisher`, `joint_state_publisher`, `tf2_ros`
 - `xacro`
 - RViz 2 and `rqt_image_view` for verification
-- `ackermann_msgs` is recommended for the future `/ackermann_cmd` Task 3 interface
-- Task 3 perception/planning dependencies and Task 4 STT dependencies are **not yet implemented/selected**
+- `ackermann_msgs` is included; the implemented Task 3 interface uses `/cmd_vel` (`geometry_msgs/Twist`) with a converter to steering and rear-wheel commands
 
 Task 2 installation:
 
@@ -51,6 +50,22 @@ sudo apt install \
   ros-humble-rviz2 \
   ros-humble-ackermann-msgs
 ```
+
+**Additional Task 3 dependencies:**
+
+- Perception: `cv_bridge`, OpenCV (`python3-opencv`) and NumPy (`python3-numpy`).
+- Localisation/map: `nav2_amcl`, `nav2_map_server`, TF2 and PyYAML (`python3-yaml`).
+- Planning/control: `nav2_planner`, `nav2_smac_planner`, `nav2_controller`, `nav2_regulated_pure_pursuit_controller`, `nav2_lifecycle_manager` and `nav2_common`.
+- ROS interfaces/startup: `rclpy`, `nav2_msgs`, `geometry_msgs`, `sensor_msgs`, `nav_msgs`, `std_msgs`, `action_msgs`, `lifecycle_msgs`, `rcl_interfaces`, `ament_index_python`, `launch` and `launch_ros`.
+
+These dependencies are declared in `ros2_ws/src/ee5112_vehicle/package.xml`. From the repository root, with `rosdep` already initialised, install the declared dependencies before building:
+
+```bash
+source /opt/ros/humble/setup.bash
+rosdep install --from-paths ros2_ws/src --ignore-src -r -y
+```
+
+Task 2 trajectory plotting additionally uses Matplotlib (`python3-matplotlib`), as described in Section 12. **Task 4 STT dependencies remain pending Student C's implementation.**
 
 ---
 
@@ -93,23 +108,58 @@ ros2 topic list | grep -E "camera|scan"
 
 ## 3. Code structure
 
+Main implementation files are shown below; earlier Stage 1 and backup files are omitted for readability.
+
 ```text
 ros2_ws/src/ee5112_vehicle/
 ├── config/
 │   ├── controllers.yaml
+│   ├── amcl.yaml
+│   ├── colour_detector.yaml
+│   ├── cmd_vel_to_ackermann.yaml
+│   ├── nav2_task3.yaml
+│   ├── task3_mission.yaml
 │   └── MiniLab1.2_platform_specs_5112.json
-├── ee5112_vehicle/__init__.py
+├── ee5112_vehicle/
+│   ├── __init__.py
+│   └── trajectory_experiment.py
 ├── launch/
 │   ├── arena.launch.py
-│   └── display.launch.py
+│   ├── display.launch.py
+│   ├── trajectory_test.launch.py
+│   ├── amcl.launch.py
+│   ├── colour_detector.launch.py
+│   ├── cmd_vel_to_ackermann.launch.py
+│   ├── task3_nav2.launch.py
+│   ├── task3.launch.py
+│   └── task3_demo.launch.py
+├── maps/
+│   ├── arena_map.yaml
+│   └── arena_map.pgm
 ├── resource/ee5112_vehicle
-├── scripts/generate_arena.py
+├── scripts/
+│   ├── generate_arena.py
+│   ├── generate_2d_map.py
+│   ├── odom_to_tf.py
+│   ├── colour_detector.py
+│   ├── colour_confirmation.py
+│   ├── cmd_vel_to_ackermann.py
+│   ├── task3_core.py
+│   ├── task3_mission.py
+│   └── task3_command.py
+├── tests/
+│   ├── test_task3_requirements.py
+│   └── test_task3_retreat.py
 ├── urdf/vehicle.urdf.xacro
-├── worlds/arena.world
+├── worlds/
+│   ├── arena.world
+│   └── trajectory_test.world
 ├── package.xml
 ├── setup.cfg
 └── setup.py
 ```
+
+Paths in the table are relative to `ros2_ws/src/ee5112_vehicle/`. Task 3 nodes remain in `scripts/`, installed into the package share directory and started by the launch files. The inner `ee5112_vehicle/` directory contains the importable Python package and Task 2 console entry point. Active Task 3 node parameters are in `config/`; map metadata stays beside its image in `maps/`.
 
 | Path | Role | Owner |
 |------|------|-------|
@@ -119,9 +169,15 @@ ros2_ws/src/ee5112_vehicle/
 | `scripts/generate_arena.py` | Rebuild arena from supplied JSON | Goh Chian Kai |
 | `launch/arena.launch.py` | Launch arena and spawn vehicle at START | Goh Chian Kai |
 | `launch/display.launch.py` | URDF/TF/RViz inspection | Goh Chian Kai |
-| **[Task 3 colour node: pending]** | Colour detection → `/detected_colours` | Mohammad Asif Bin Abdul Sahid |
-| **[Task 3 controller/planner: pending]** | Autonomous motion; intended `/ackermann_cmd` | Mohammad Asif Bin Abdul Sahid |
-| **[Task 3 mission/parser: pending]** | Typed command/search; intended `/mission_status` | Mohammad Asif Bin Abdul Sahid |
+| `ee5112_vehicle/trajectory_experiment.py`, `launch/trajectory_test.launch.py` | Task 2 trajectory recording, analysis and plots | Goh Chian Kai |
+| `scripts/colour_detector.py`, `config/colour_detector.yaml` | Camera colour labels → `/detected_colours`; annotated debug images | Mohammad Asif Bin Abdul Sahid |
+| `scripts/colour_confirmation.py` | Shared fresh-camera and base_link proximity confirmation | Mohammad Asif Bin Abdul Sahid |
+| `scripts/cmd_vel_to_ackermann.py`, `config/cmd_vel_to_ackermann.yaml` | Convert `/cmd_vel` to limited steering/rear-wheel commands | Mohammad Asif Bin Abdul Sahid |
+| `config/nav2_task3.yaml`, `launch/task3_nav2.launch.py` | Smac Hybrid-A* planner and regulated pure pursuit controllers | Mohammad Asif Bin Abdul Sahid |
+| `scripts/task3_mission.py`, `scripts/task3_core.py`, `scripts/task3_command.py` | Typed parser, ordered autonomous search, retreat/fallback and `/mission_status` | Mohammad Asif Bin Abdul Sahid |
+| `scripts/generate_2d_map.py`, `scripts/odom_to_tf.py`, `config/amcl.yaml` | Known occupancy map and localisation/TF support | Mohammad Asif Bin Abdul Sahid |
+| `config/task3_mission.yaml`, `launch/task3.launch.py`, `launch/task3_demo.launch.py` | Mission parameters, individual and combined startup | Mohammad Asif Bin Abdul Sahid |
+| `tests/test_task3_requirements.py`, `tests/test_task3_retreat.py` | Command, perception, confirmation, limits and routing checks | Mohammad Asif Bin Abdul Sahid |
 | **[Task 4 STT node: pending]** | STT → `/speech_command` → Task 3 | Tan Chew Miang Edwin |
 
 ---
@@ -388,53 +444,70 @@ Verified command interfaces are both front steering `position` interfaces and bo
 
 ---
 
-## 7. Task 3 — How Student B searched for coloured blocks
+## 7. Task 3 — Commanded Colour-Block Search
 
-**Vehicle:** reuse the exact Task 2 URDF, arena, kinematics and sensor mounts.  
-**Commands:** English only.  
-**Navigation:** autonomous immediately after a valid command; no teleoperation/manual RViz goal in the graded video.
+Task 3 connects typed English commands, camera-based colour detection and autonomous navigation to find coloured blocks in the requested order. The [demonstration video](video/Video_Task3.webm) shows a successful four-colour search—Yellow, Purple, Orange and Green—with labelled camera detections and visible mission logs.
 
-**Current status:** **Pending Student B implementation.** Task 2 has delivered the simulation platform, camera, `/scan`, known arena, seven blocks and low-level steering/drive controllers.
+**Colour detection**
 
-**Integration information:**
+We use HSV thresholding and contour/blob filtering because the arena has seven known colours, making a lightweight, inspectable method suitable. `cv_bridge` converts the onboard image to BGR and OpenCV converts it to HSV. Two hue ranges handle red; opening/closing and area, aspect, fill and solidity checks remove unlikely blobs. Black uses a dark-value threshold with surrounding contrast because hue is unreliable for dark objects. Three spatially consistent frames stabilise labels. The annotated `/colour_detector/debug_image` shows detections for inspection. References: [OpenCV HSV segmentation](https://docs.opencv.org/4.x/df/d9d/tutorial_py_colorspaces.html) and [morphology](https://docs.opencv.org/4.x/d9/d61/tutorial_py_morphological_ops.html).
 
-- Launch: `ros2 launch ee5112_vehicle arena.launch.py`
-- Camera: verified; inspect exact topic with `ros2 topic list | grep camera`
-- LiDAR: `/scan` (`sensor_msgs/msg/LaserScan`)
-- Steering: `/steering_controller/commands` (`std_msgs/msg/Float64MultiArray`)
-- Rear drive: `/rear_wheel_controller/commands` (`std_msgs/msg/Float64MultiArray`)
-- Limits: `|v| ≤ 0.50 m/s`, `|δ| ≤ 35°`
-- Recommended high-level command: `/ackermann_cmd` (`ackermann_msgs/AckermannDrive`)
-- Known map: `config/MiniLab1.2_platform_specs_5112.json`
-- START: `(0.55, 0.35, 0)`
-- SLAM not required
+**Planning and control**
 
-**Supported English commands** (final implementation must cover 1–4 distinct colours):
+AMCL uses `/scan` and the known wall map; LiDAR also updates navigation costmaps. We add the known low cubes to the planning map because the raised laser can miss them. Nav2’s [Smac Hybrid-A*](https://github.com/ros-navigation/navigation2/blob/humble/nav2_smac_planner/README.md) uses forward Dubins paths with a 0.38 m minimum turning radius, and [regulated pure pursuit](https://github.com/ros-navigation/navigation2/blob/humble/nav2_regulated_pure_pursuit_controller/README.md) tracks them. This respects the car’s inability to turn on the spot. Our converter maps `/cmd_vel` into individual steering/rear-wheel commands, enforcing ±35° per steering joint and the 0.50 m/s platform limit. Current mission caps are 0.40 m/s for navigation and 0.15 m/s for final approach.
 
-| N | Example to test |
-|---|-----------------|
+**From Reeds–Shepp to three-stage following:** we initially tried Reeds–Shepp, which allows forward and reverse segments in one route. The control challenge was handling short segments and stopping accurately at direction-change points (cusps) with the steering-limited vehicle. We switched to Dubins planning with explicit control points and three stages between boxes:
+
+1. **Reverse retreat** from the found box to its room control point; if unreachable, try an adjacent control point, ordered by reverse heading.
+2. **Forward Dubins travel** from the control point to a box-facing entry pose for the next target.
+3. **Final straight approach** toward the box, followed by camera/proximity confirmation.
+
+This gives each stage one driving direction and explicit stopped handoffs, simplifying tracking at the cost of potentially longer routes. The initial journey from START skips retreat. The viewing distance is 0.40 m; the 0.05 m final-straight setting is a minimum with additional entry margins. Box planning compares two valid routes or selects an available one after a 3 s soft budget; unsuccessful searches retain 12 s. The **whole mission timeout is 300 s of simulation time**, with bounded retries and explicit failure reporting.
+
+**Commands and found criterion (C1–C3):**
+
+The parser accepts 1–4 distinct colours in English and preserves their order. Empty, non-English, repeated, unknown and more-than-four-colour commands are rejected. Acceptance starts autonomous planning and motion without teleoperation, another start trigger or a manual RViz goal. A target is counted only when fresh camera evidence and `base_link` distance ≤0.50 m hold together for 0.30 s; `[FOUND] colour=... t=... x=... y=...` is then printed. JSON coordinates guide planning/proximity, never detection. Later colours cannot be counted early.
+
+| N | Supported and parser-tested example |
+|---|-------------------------------------|
 | 1 | `find red` |
 | 2 | `find red and blue` |
 | 3 | `find red, blue and yellow` |
 | 4 | `find red, blue, yellow and green` |
 
-**Key files:**
+**Task 3 dependencies and launch:**
 
-- Colour node: **[pending Student B]**
-- Controller / planner: **[pending Student B]**
-- Mission / parser: **[pending Student B]**
-- Owner: Student B **[add name/matriculation number]**
+Additional dependencies include Nav2/AMCL, `cv_bridge`, OpenCV, NumPy and PyYAML; they are declared in `package.xml`. From the repository root, with ROS 2 Humble and `rosdep` configured:
 
-```python
-# Required logic:
-# "find red and blue" -> ["Red", "Blue"]
-# Found only if camera detects colour AND planar distance <= 0.50 m
-# AND a [FOUND] line is printed.
+```bash
+source /opt/ros/humble/setup.bash
+rosdep install --from-paths ros2_ws/src --ignore-src -r -y
+colcon build --base-paths ros2_ws/src --packages-select ee5112_vehicle --symlink-install
+source install/setup.bash
+ros2 launch ee5112_vehicle task3_demo.launch.py
 ```
+
+The combined launch starts the Task 2 platform and Task 3 stack. In another terminal, source ROS and the same root `install/setup.bash`, then run:
+
+```bash
+python3 ros2_ws/src/ee5112_vehicle/scripts/task3_command.py
+```
+
+Wait for `[READY]`, type the English command and press ENTER. `cancel` stops; `q` cancels and exits. For a separate recording terminal, launch the stack with `start_mission:=false`, then run `ros2 launch ee5112_vehicle task3.launch.py` there. Mission messages show just their text, without the process name, ROS timestamp or node prefix. `[FOUND]` and mission success are bold green, mission failure is bold red, and `[CMD]` is cyan. Set `NO_COLOR=1` before the launch command to disable highlighting. Normal INFO output keeps mission milestones readable; `log_level:=debug` restores detailed diagnostics. Do not run the old Stage 1/teleoperation stack alongside this demo.
+
+**Key files** (relative to `ros2_ws/src/ee5112_vehicle/`):
+
+- Perception/confirmation: `scripts/colour_detector.py`, `scripts/colour_confirmation.py`.
+- Mission/parser: `scripts/task3_mission.py`, `scripts/task3_core.py`, `scripts/task3_command.py`.
+- Navigation/control: `scripts/cmd_vel_to_ackermann.py`, `config/nav2_task3.yaml`, `config/task3_mission.yaml`.
+- Localisation/map: `scripts/odom_to_tf.py`, `config/amcl.yaml`, `maps/arena_map.yaml` and its PGM.
+- Startup: `launch/task3_demo.launch.py`; Task 3 nodes remain in the installed `scripts/` layout.
+
+**Verification and limitations:** command, confirmation, synthetic seven-colour, limit and routing tests pass; these do not replace Gazebo video evidence. HSV remains sensitive to lighting/shadows and partial views; narrow doorways and forward-only routes can cause long detours or planning failure. RPP live collision projection is disabled in the current static-arena tuning. The Task 4 `/speech_command` receiving interface is ready for Student C’s STT node. Task 3 was developed with AI coding assistance.
 
 **Deliverables:**
 
-- `Video_Task3.*` — **pending**; typed English command + autonomous search + visible terminal `[CMD]` / `[FOUND]` / `[MISSION]`.
+- [Video_Task3.webm](video/Video_Task3.webm) — four-colour command `find yellow, purple, orange and green`, autonomous search in Gazebo, RViz and labelled camera views, and terminal output ending in `[MISSION] status=SUCCESS`.
 
 ---
 
@@ -470,7 +543,7 @@ This section is marked for the **whole group**. Confirm every item before you zi
 |------|-------------|---------|
 | `README.md` | 5 | **In progress:** Task 2 documented; add member details and final Tasks 1/3/4 write-ups |
 | `Video_Task2.*` | 2 | **To record:** vehicle/map, visible camera/LiDAR and basic motion |
-| `Video_Task3.*` | 3 | **Pending Task 3** |
+| [Video_Task3.webm](video/Video_Task3.webm) | 3 | Four-colour typed search: Yellow → Purple → Orange → Green; visible terminal and SUCCESS |
 | `Video_Task4.*` | 4 | **Pending Task 4** |
 
 > In `Video_Task3` and `Video_Task4`, the terminal or rosout log **must remain visible throughout**. A video without that output is incomplete.

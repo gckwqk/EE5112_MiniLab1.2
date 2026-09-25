@@ -1,0 +1,23 @@
+colour_confirmation:
+  ros__parameters:
+    use_sim_time: true
+    target_colour: Red
+    detections_topic: /detected_colours
+    target_topic: /colour_confirmation/target
+    map_frame: map
+    base_frame: base_link
+    confirmation_radius_m: 0.50
+    confirmation_hold_s: 0.30
+    detection_timeout_s: 0.50
+    tf_max_age_s: 0.40
+    tf_future_tolerance_s: 0.20
+    # Block centres from the supplied arena/specification, in map coordinates.
+    # These are used only for distance; camera evidence is always required.
+    blocks:
+      red: [0.45, 1.70]
+      orange: [0.95, 2.00]
+      yellow: [1.80, 1.85]
+      green: [2.35, 2.05]
+      blue: [3.45, 2.15]
+      purple: [3.70, 2.00]
+      black: [3.55, 1.45]
