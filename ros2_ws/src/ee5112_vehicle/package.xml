@@ -22,6 +22,13 @@
   <exec_depend>python3-numpy</exec_depend>
   <exec_depend>python3-yaml</exec_depend>
   <exec_depend>python3-matplotlib</exec_depend>
+  <!-- Task 4: speech-to-text front end (speech_command.py). Default engine is
+       Google's free Web Speech API over the internet; python3-pocketsphinx
+       (not declared here, apt/pip availability varies by distro) enables the
+       offline 'sphinx' engine instead -- see README Section 8. -->
+  <exec_depend>python3-speechrecognition</exec_depend>
+  <exec_depend>python3-pyaudio</exec_depend>
+  <exec_depend>flac</exec_depend>
   <exec_depend>xacro</exec_depend>
   <exec_depend>gazebo_ros</exec_depend>
   <exec_depend>gazebo_plugins</exec_depend>

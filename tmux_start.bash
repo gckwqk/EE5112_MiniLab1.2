@@ -3,7 +3,7 @@
 # Uses the original split-window / send-keys / tiled-layout structure.
 
 SESSION_NAME=tmux_start
-WORKSPACE="${MINILAB_WORKSPACE:-/home/user/EE5112_MiniLab1.2}"
+WORKSPACE="${MINILAB_WORKSPACE:-$HOME/EE5112_MiniLab1.2}"
 ROS_SETUP=/opt/ros/humble/setup.bash
 
 if ! tmux has-session -t "=$SESSION_NAME" 2>/dev/null; then
@@ -14,9 +14,15 @@ if ! tmux has-session -t "=$SESSION_NAME" 2>/dev/null; then
     fi
   done
 
-  # Source ROS and the workspace in every pane. %q safely quotes local paths.
-  printf -v PANE_SETUP 'source %q && source %q && cd %q && ' \
-    "$ROS_SETUP" "$WORKSPACE/install/setup.bash" "$WORKSPACE"
+  # Source ROS and the workspace in every pane, then patch AMENT_PREFIX_PATH:
+  # colcon's ament_python step isn't generating the environment hook for
+  # ee5112_vehicle in this checkout, so "ros2 launch ee5112_vehicle ..."
+  # can't find the package unless we add its prefix back by hand. Every new
+  # bash pane starts from scratch (it does not inherit this script's own
+  # shell environment), so this has to be sent as a real command in each
+  # pane, not just exported here. %q safely quotes local paths.
+  printf -v PANE_SETUP 'source %q && source %q && export AMENT_PREFIX_PATH=%q":$AMENT_PREFIX_PATH" && cd %q && ' \
+    "$ROS_SETUP" "$WORKSPACE/install/setup.bash" "$WORKSPACE/install/ee5112_vehicle" "$WORKSPACE"
 
   # Create a new session; explicit Bash matches the setup.bash files.
   tmux new-session -s "$SESSION_NAME" -n "$SESSION_NAME" -d \
@@ -52,7 +58,7 @@ if ! tmux has-session -t "=$SESSION_NAME" 2>/dev/null; then
   tmux split-window -v -t "$SESSION_NAME" -c "$WORKSPACE" bash
   tmux select-pane -t "$SESSION_NAME" -T "Gazebo"
   tmux set-option -p -t "$SESSION_NAME" @heading "Gazebo"
-  tmux send-keys -t "$SESSION_NAME" -l "sleep 2 && "'ros2 launch ee5112_vehicle arena.launch.py'
+  tmux send-keys -t "$SESSION_NAME" -l "${PANE_SETUP}sleep 2 && "'ros2 launch ee5112_vehicle arena.launch.py'
   tmux send-keys -t "$SESSION_NAME" C-m
   tmux select-layout -t "$SESSION_NAME" tiled
 
@@ -60,7 +66,7 @@ if ! tmux has-session -t "=$SESSION_NAME" 2>/dev/null; then
   tmux split-window -v -t "$SESSION_NAME" -c "$WORKSPACE" bash
   tmux select-pane -t "$SESSION_NAME" -T "Colour detector"
   tmux set-option -p -t "$SESSION_NAME" @heading "Colour detector"
-  tmux send-keys -t "$SESSION_NAME" -l "sleep 4 && "'ros2 launch ee5112_vehicle colour_detector.launch.py use_sim_time:=true'
+  tmux send-keys -t "$SESSION_NAME" -l "${PANE_SETUP}sleep 4 && "'ros2 launch ee5112_vehicle colour_detector.launch.py use_sim_time:=true'
   tmux send-keys -t "$SESSION_NAME" C-m
   tmux select-layout -t "$SESSION_NAME" tiled
 
@@ -68,7 +74,7 @@ if ! tmux has-session -t "=$SESSION_NAME" 2>/dev/null; then
   tmux split-window -v -t "$SESSION_NAME" -c "$WORKSPACE" bash
   tmux select-pane -t "$SESSION_NAME" -T "AMCL"
   tmux set-option -p -t "$SESSION_NAME" @heading "AMCL"
-  tmux send-keys -t "$SESSION_NAME" -l "sleep 6 && "'ros2 launch ee5112_vehicle amcl.launch.py'
+  tmux send-keys -t "$SESSION_NAME" -l "${PANE_SETUP}sleep 6 && "'ros2 launch ee5112_vehicle amcl.launch.py'
   tmux send-keys -t "$SESSION_NAME" C-m
   tmux select-layout -t "$SESSION_NAME" tiled
 
@@ -76,7 +82,7 @@ if ! tmux has-session -t "=$SESSION_NAME" 2>/dev/null; then
   tmux split-window -v -t "$SESSION_NAME" -c "$WORKSPACE" bash
   tmux select-pane -t "$SESSION_NAME" -T "Ackermann converter"
   tmux set-option -p -t "$SESSION_NAME" @heading "Ackermann converter"
-  tmux send-keys -t "$SESSION_NAME" -l "sleep 6 && "'ros2 launch ee5112_vehicle cmd_vel_to_ackermann.launch.py'
+  tmux send-keys -t "$SESSION_NAME" -l "${PANE_SETUP}sleep 6 && "'ros2 launch ee5112_vehicle cmd_vel_to_ackermann.launch.py'
   tmux send-keys -t "$SESSION_NAME" C-m
   tmux select-layout -t "$SESSION_NAME" tiled
 
@@ -84,7 +90,7 @@ if ! tmux has-session -t "=$SESSION_NAME" 2>/dev/null; then
   tmux split-window -v -t "$SESSION_NAME" -c "$WORKSPACE" bash
   tmux select-pane -t "$SESSION_NAME" -T "Task 3 mission"
   tmux set-option -p -t "$SESSION_NAME" @heading "Task 3 mission"
-  tmux send-keys -t "$SESSION_NAME" -l "sleep 8 && "'ros2 launch ee5112_vehicle task3.launch.py'
+  tmux send-keys -t "$SESSION_NAME" -l "${PANE_SETUP}sleep 8 && "'ros2 launch ee5112_vehicle task3.launch.py'
   tmux send-keys -t "$SESSION_NAME" C-m
   tmux select-layout -t "$SESSION_NAME" tiled
 
@@ -92,7 +98,7 @@ if ! tmux has-session -t "=$SESSION_NAME" 2>/dev/null; then
   tmux split-window -v -t "$SESSION_NAME" -c "$WORKSPACE" bash
   tmux select-pane -t "$SESSION_NAME" -T "Nav2"
   tmux set-option -p -t "$SESSION_NAME" @heading "Nav2"
-  tmux send-keys -t "$SESSION_NAME" -l "sleep 8 && "'ros2 launch ee5112_vehicle task3_nav2.launch.py'
+  tmux send-keys -t "$SESSION_NAME" -l "${PANE_SETUP}sleep 8 && "'ros2 launch ee5112_vehicle task3_nav2.launch.py'
   tmux send-keys -t "$SESSION_NAME" C-m
   tmux select-layout -t "$SESSION_NAME" tiled
 
@@ -105,7 +111,7 @@ if ! tmux has-session -t "=$SESSION_NAME" 2>/dev/null; then
   else
     RVIZ_COMMAND=rviz2
   fi
-  tmux send-keys -t "$SESSION_NAME" -l "sleep 10 && ${RVIZ_COMMAND}"
+  tmux send-keys -t "$SESSION_NAME" -l "${PANE_SETUP}sleep 10 && ${RVIZ_COMMAND}"
   tmux send-keys -t "$SESSION_NAME" C-m
   tmux select-layout -t "$SESSION_NAME" tiled
 
@@ -113,10 +119,18 @@ if ! tmux has-session -t "=$SESSION_NAME" 2>/dev/null; then
   tmux split-window -v -t "$SESSION_NAME" -c "$WORKSPACE" bash
   tmux select-pane -t "$SESSION_NAME" -T "Commands"
   tmux set-option -p -t "$SESSION_NAME" @heading "Commands"
-  tmux send-keys -t "$SESSION_NAME" -l "sleep 10 && "'python3 "$(ros2 pkg prefix ee5112_vehicle)/share/ee5112_vehicle/scripts/task3_command.py"'
+  tmux send-keys -t "$SESSION_NAME" -l "${PANE_SETUP}sleep 10 && "'python3 "$(ros2 pkg prefix ee5112_vehicle)/share/ee5112_vehicle/scripts/task3_command.py"'
   tmux send-keys -t "$SESSION_NAME" C-m
   tmux select-layout -t "$SESSION_NAME" tiled
   COMMAND_PANE=$(tmux display-message -p -t "$SESSION_NAME" "#{pane_id}")
+
+  # ----- start the Task 4 speech interface -----
+  tmux split-window -v -t "$SESSION_NAME" -c "$WORKSPACE" bash
+  tmux select-pane -t "$SESSION_NAME" -T "Speech (Task 4)"
+  tmux set-option -p -t "$SESSION_NAME" @heading "Speech (Task 4)"
+  tmux send-keys -t "$SESSION_NAME" -l "${PANE_SETUP}sleep 10 && "'python3 "$(ros2 pkg prefix ee5112_vehicle)/share/ee5112_vehicle/scripts/speech_command.py" --ros-args --params-file "'"$WORKSPACE"'/ros2_ws/src/ee5112_vehicle/config/speech_command.yaml"'
+  tmux send-keys -t "$SESSION_NAME" C-m
+  tmux select-layout -t "$SESSION_NAME" tiled
 
   # ----- kill session: command is prepared, Enter is NOT sent -----
   tmux split-window -v -t "$SESSION_NAME" -c "$WORKSPACE" bash

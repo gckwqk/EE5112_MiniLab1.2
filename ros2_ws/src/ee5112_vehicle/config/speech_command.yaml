@@ -1,0 +1,11 @@
+# Task 4 owner: Tan Chew Miang Edwin (A0201867A), Group 13.
+speech_command:
+  ros__parameters:
+    speech_topic: /speech_command
+    engine: google              # google (online, recognize_google) | sphinx (offline, recognize_sphinx)
+    language: en-US
+    microphone_index: -1        # -1: system default input device; see README for listing devices
+    ambient_noise_calibration_s: 0.6
+    phrase_time_limit_s: 6.0
+    listen_timeout_s: 8.0
+    debug_text_mode: false      # true: type a transcript instead of using the microphone (bench testing only)

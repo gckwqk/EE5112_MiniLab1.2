@@ -36,3 +36,9 @@ frames.pdf
 
 # Colcon metadata
 COLCON_IGNORE
+
+# colcon build artifacts -- never track these; they can capture live
+# environment variables (API keys, etc.) into generated files.
+build/
+install/
+log/

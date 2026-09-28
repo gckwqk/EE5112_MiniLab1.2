@@ -65,7 +65,17 @@ source /opt/ros/humble/setup.bash
 rosdep install --from-paths ros2_ws/src --ignore-src -r -y
 ```
 
-Task 2 trajectory plotting additionally uses Matplotlib (`python3-matplotlib`), as described in Section 12. **Task 4 STT dependencies remain pending Student C's implementation.**
+Task 2 trajectory plotting additionally uses Matplotlib (`python3-matplotlib`), as described in Section 12.
+
+**Additional Task 4 dependencies:**
+
+- Speech-to-text: [`SpeechRecognition`](https://pypi.org/project/SpeechRecognition/) (`python3-speechrecognition`), `PyAudio`/PortAudio for microphone capture (`python3-pyaudio`), and `flac` (used by the library's Google Web Speech API request).
+- Default engine is Google's free Web Speech API (`recognize_google`, needs internet); an offline alternative, CMU Sphinx (`recognize_sphinx`, needs `pocketsphinx`), can be selected with the `engine` parameter — see Section 8.
+
+```bash
+sudo apt install python3-speechrecognition python3-pyaudio flac
+# Offline engine (optional): pip install --user pocketsphinx
+```
 
 ---
 
@@ -102,7 +112,14 @@ ros2 topic list | grep -E "camera|scan"
 
 **Task 3 typed command:** **Pending Student B.** Final system must accept English commands such as `find red and blue`, start autonomous motion immediately, and reject non-English commands.
 
-**Task 4 speech:** **Pending Student C.** Intended interface: `/speech_command` (`std_msgs/String`) into the same Task 3 mission logic.
+**Task 4 speech:** with the Task 3 stack already running (`task3_demo.launch.py` or the individual launch files plus `task3.launch.py`), run the speech node directly in its own terminal, the same way as the typed command node:
+
+```bash
+python3 "$(ros2 pkg prefix ee5112_vehicle)/share/ee5112_vehicle/scripts/speech_command.py" \
+  --ros-args --params-file ros2_ws/src/ee5112_vehicle/config/speech_command.yaml
+```
+
+Wait for `[SPEECH_READY]`, press ENTER, then speak one English colour command (e.g. "find red and blue") when `[LISTENING]` appears. The node prints `[STT] text=...` and either `[STT] colours=...` (and forwards it to Task 3 on `/speech_command`) or `[STT] error=...`. `q` + ENTER quits. `tmux_start.bash` has a dedicated "Speech (Task 4)" pane for this.
 
 ---
 
@@ -119,6 +136,7 @@ ros2_ws/src/ee5112_vehicle/
 │   ├── cmd_vel_to_ackermann.yaml
 │   ├── nav2_task3.yaml
 │   ├── task3_mission.yaml
+│   ├── speech_command.yaml
 │   └── MiniLab1.2_platform_specs_5112.json
 ├── ee5112_vehicle/
 │   ├── __init__.py
@@ -146,10 +164,12 @@ ros2_ws/src/ee5112_vehicle/
 │   ├── cmd_vel_to_ackermann.py
 │   ├── task3_core.py
 │   ├── task3_mission.py
-│   └── task3_command.py
+│   ├── task3_command.py
+│   └── speech_command.py
 ├── tests/
 │   ├── test_task3_requirements.py
-│   └── test_task3_retreat.py
+│   ├── test_task3_retreat.py
+│   └── test_task4_speech.py
 ├── urdf/vehicle.urdf.xacro
 ├── worlds/
 │   ├── arena.world
@@ -178,7 +198,8 @@ Paths in the table are relative to `ros2_ws/src/ee5112_vehicle/`. Task 3 nodes r
 | `scripts/generate_2d_map.py`, `scripts/odom_to_tf.py`, `config/amcl.yaml` | Known occupancy map and localisation/TF support | Mohammad Asif Bin Abdul Sahid |
 | `config/task3_mission.yaml`, `launch/task3.launch.py`, `launch/task3_demo.launch.py` | Mission parameters, individual and combined startup | Mohammad Asif Bin Abdul Sahid |
 | `tests/test_task3_requirements.py`, `tests/test_task3_retreat.py` | Command, perception, confirmation, limits and routing checks | Mohammad Asif Bin Abdul Sahid |
-| **[Task 4 STT node: pending]** | STT → `/speech_command` → Task 3 | Tan Chew Miang Edwin |
+| `scripts/speech_command.py`, `config/speech_command.yaml` | Microphone → STT (`SpeechRecognition`) → `[STT]` logs → `/speech_command` → Task 3 mission | Tan Chew Miang Edwin |
+| `tests/test_task4_speech.py` | Offline transcript→colour-list parsing/rejection checks (no mic, no ROS) | Tan Chew Miang Edwin |
 
 ---
 
@@ -503,7 +524,7 @@ Wait for `[READY]`, type the English command and press ENTER. `cancel` stops; `q
 - Localisation/map: `scripts/odom_to_tf.py`, `config/amcl.yaml`, `maps/arena_map.yaml` and its PGM.
 - Startup: `launch/task3_demo.launch.py`; Task 3 nodes remain in the installed `scripts/` layout.
 
-**Verification and limitations:** command, confirmation, synthetic seven-colour, limit and routing tests pass; these do not replace Gazebo video evidence. HSV remains sensitive to lighting/shadows and partial views; narrow doorways and forward-only routes can cause long detours or planning failure. RPP live collision projection is disabled in the current static-arena tuning. The Task 4 `/speech_command` receiving interface is ready for Student C’s STT node. Task 3 was developed with AI coding assistance.
+**Verification and limitations:** command, confirmation, synthetic seven-colour, limit and routing tests pass; these do not replace Gazebo video evidence. HSV remains sensitive to lighting/shadows and partial views; narrow doorways and forward-only routes can cause long detours or planning failure. RPP live collision projection is disabled in the current static-arena tuning. The `/speech_command` topic is subscribed with the same `on_command` handler as typed input (`allow_bare_list=True`), so Task 4's STT node (Section 8) drives the identical mission logic. Task 3 was developed with AI coding assistance.
 
 **Deliverables:**
 
@@ -511,27 +532,48 @@ Wait for `[READY]`, type the English command and press ENTER. `cancel` stops; `q
 
 ---
 
-## 8. Task 4 — How Student C connected speech to Task 3
+## 8. Task 4 — How Student C (Edwin) connected speech to Task 3
 
-**Current status:** **Pending Student C implementation.** No STT library/API has yet been selected in the work completed so far.
+`scripts/speech_command.py` is a small terminal node, run the same way as `task3_command.py`: press ENTER, speak one English colour command, and it is transcribed, validated and — only if valid — forwarded to the existing Task 3 mission node. No teleoperation or extra start trigger is involved; the vehicle begins the same autonomous search Task 3 already performs.
 
-The final node must perform English speech-to-text, print `[STT]` output, validate/parse the seven supported colours, and publish/pass the command through `/speech_command` (`std_msgs/String`) into the same Task 3 mission logic. The vehicle must then start the same autonomous search without another manual trigger.
+**Pipeline:**
+
+1. **Capture:** [`SpeechRecognition`](https://pypi.org/project/SpeechRecognition/)'s `Microphone` records one phrase after ENTER is pressed, with a short ambient-noise calibration first.
+2. **Transcribe:** by default, Google's free Web Speech API (`recognizer.recognize_google`, needs internet); the `engine: sphinx` parameter switches to the offline CMU Sphinx engine (`recognize_sphinx`, via `pocketsphinx`) when no internet is available. `[STT] text=<transcript>` is always printed.
+3. **Parse/validate:** the transcript is passed to `task3_core.parse_command(text, allow_bare_list=True)` — **the identical parser Task 3 uses for typed commands** — so the seven-colour, 1–4-distinct-colour, English-only rules are enforced exactly once, in one place. `allow_bare_list=True` additionally lets a spoken "red and blue" work without requiring the "find" prefix a typed command needs. On success, `[STT] colours=Red, Blue` is printed; on failure, `[STT] error=<reason>` is printed and nothing is forwarded (a transcript alone never starts a mission).
+4. **Forward:** the recognised text is published once on `/speech_command` (`std_msgs/String`). `task3_mission.py`'s `Task3MissionNode` already subscribes to this topic (`speech_topic` parameter) and calls its own `on_command(msg, speech=True)` — the same state machine, `[CMD]`/`[FOUND]`/`[MISSION]` logging and autonomous navigation as a typed command, with no changes needed on the Task 3 side.
 
 **Key files:**
 
-- STT node: **[pending Student C]**
-- Interface into Task 3: **[pending Student C]**
-- Owner: Student C **[add name/matriculation number; or state shared ownership for a 2-member group]**
+- STT node: `scripts/speech_command.py`
+- Parameters: `config/speech_command.yaml` (engine, language, microphone index, timeouts)
+- Interface into Task 3: `/speech_command` (`std_msgs/String`), consumed by `scripts/task3_mission.py` (Section 7, Mohammad Asif Bin Abdul Sahid)
+- Offline tests: `tests/test_task4_speech.py`
+- Owner: Tan Chew Miang Edwin (A0201867A)
 
-```python
-print("[STT] text=...")
-print("[STT] colours=Red, Blue")
-# Then pass the validated command to the Task 3 mission logic.
+**Run it** (after the Task 3 stack is already running — Section 2):
+
+```bash
+python3 "$(ros2 pkg prefix ee5112_vehicle)/share/ee5112_vehicle/scripts/speech_command.py" \
+  --ros-args --params-file ros2_ws/src/ee5112_vehicle/config/speech_command.yaml
 ```
+
+```text
+[SPEECH_READY] engine=google language=en-US topic=/speech_command
+Press ENTER, then speak one English colour command (e.g. "find red and blue"). Type q + ENTER to quit instead.
+Speech> 
+[LISTENING] speak now...
+[STT] text=find red and blue
+[STT] colours=Red, Blue
+```
+
+A `debug_text_mode: true` parameter lets a member type a line instead of speaking it, for bench-testing the parser/forwarding path without a working microphone; the demonstration video must use real speech with `debug_text_mode: false` (the default).
+
+**Verification and limitations:** `tests/test_task4_speech.py` checks the transcript→colour-list decision (1–4 colours, bare lists, punctuation, non-English, repeats, unknown colours, >4 colours) against the real `task3_core.parse_command`, offline. It does not exercise `recognize_google`/`recognize_sphinx` or a live microphone — that can only be verified by actually speaking to it, which is what `Video_Task4` must show. The Google engine needs internet and can vary with accent, phrasing and background/simulator noise; the offline Sphinx engine avoids the network dependency but is less accurate. Developed with AI coding assistance.
 
 **Deliverables:**
 
-- `Video_Task4.*` — **pending**; spoken English command + `[STT]` + Task 3 autonomous search + `[FOUND]`.
+- `Video_Task4.*` — **to record**; spoken English command + `[STT]` + Task 3 autonomous search + `[FOUND]`.
 
 ---
 
@@ -541,12 +583,22 @@ This section is marked for the **whole group**. Confirm every item before you zi
 
 | File | Linked task | Content |
 |------|-------------|---------|
-| `README.md` | 5 | **In progress:** Task 2 documented; add member details and final Tasks 1/3/4 write-ups |
+| `README.md` | 5 | Tasks 1–4 documented, including Task 4; recheck against `README_TEMPLATE.md` and fill in the TF-tree screenshot before zipping |
 | `Video_Task2.*` | 2 | **To record:** vehicle/map, visible camera/LiDAR and basic motion |
 | [Video_Task3.webm](video/Video_Task3.webm) | 3 | Four-colour typed search: Yellow → Purple → Orange → Green; visible terminal and SUCCESS |
-| `Video_Task4.*` | 4 | **Pending Task 4** |
+| `Video_Task4.*` | 4 | **To record:** spoken command with `speech_command.py` running, showing `[STT]` lines and the resulting Task 3 autonomous search |
 
 > In `Video_Task3` and `Video_Task4`, the terminal or rosout log **must remain visible throughout**. A video without that output is incomplete.
+
+**Zipping the submission:** from the repository root, once both remaining videos are in `video/`:
+
+```bash
+cd ~/EE5112_MiniLab1.2
+zip -r minilab_group_13.zip . \
+  -x '.git/*' 'ros2_ws/build/*' 'ros2_ws/install/*' 'ros2_ws/log/*' '**/__pycache__/*'
+```
+
+Unzip it elsewhere afterwards and confirm `README.md`, the three videos and `ros2_ws/src/` are all present and that it excludes `colcon` build artifacts (a marker rebuilds with `colcon build`, so `build/`/`install/`/`log/` are not needed in the zip).
 
 ---
 
@@ -595,11 +647,11 @@ Put the **same** four numbers in both `<ambient>` and `<diffuse>`.
 ## 10. Limitations
 
 - Task 2 vehicle, controllers, RGB camera, 2D LiDAR and prescribed arena are implemented and verified in Gazebo Classic.
-- Task 3 colour detection, high-level Ackermann command node, planner/controller and autonomous mission parser are not yet integrated.
-- Task 4 speech-to-text is not yet implemented.
+- Task 3 colour detection, planner/controller and autonomous mission parser are implemented; see Section 7 for its own verification notes and limitations.
+- Task 4 speech-to-text (`speech_command.py`) is implemented and unit-tested offline (Section 8), but not yet verified end-to-end with a live microphone against the running Gazebo stack — `Video_Task4` is that verification and is still to be recorded.
 - Camera throughput can fall below its nominal configured rate depending on Gazebo rendering/simulation load; perception performance should be rechecked with the final Task 3 stack.
 - Ackermann steering cannot rotate in place; door/corridor trajectories must respect the wheelbase and ±35° steering limit.
-- Colour-threshold/lighting limitations and STT noise/accent limitations must be documented after Tasks 3 and 4 are implemented.
+- The default Google Web Speech API engine needs internet access and can be affected by accent, phrasing, microphone quality and background/simulator noise; the offline CMU Sphinx alternative removes the network dependency but is less accurate.
 
 ---
 
@@ -610,7 +662,8 @@ Put the **same** four numbers in both `<ambient>` and `<diffuse>`.
 - `gazebo_ros` and `gazebo_ros2_control` — Gazebo Classic integration and simulated hardware.
 - `robot_state_publisher`, Xacro and TF2 — robot description and TF publication/verification.
 - **[TODO Task 1: add at least two locomotion/kinematics references actually consulted.]**
-- **[TODO Tasks 3/4: add third-party perception/planning/STT packages or APIs actually used.]**
+- [`SpeechRecognition`](https://pypi.org/project/SpeechRecognition/) (PyPI library used by `speech_command.py`) and its [Google Web Speech API](https://cloud.google.com/speech-to-text) backend (default `engine`); [CMU Sphinx / `pocketsphinx`](https://cmusphinx.github.io/) (optional offline `engine: sphinx`).
+- **[TODO Task 3: add third-party perception/planning packages or APIs actually used, beyond the ROS/Nav2 packages already listed above.]**
 
 ------------------------------------------------------------------------
 
