@@ -450,7 +450,7 @@ Verified command interfaces are both front steering `position` interfaces and bo
 
 - Modelling screenshot: **[TODO: add final path, e.g. `figures/task2_vehicle.png`]**
 - TF tree: **[TODO: `figures/tf_tree.png`]**
-- Video: [Video_Task2.webm](video/Video_Task2.webm) — recorded: arena + vehicle + visible camera/LiDAR + basic motion.
+- Video: `Video_Task2.[mp4/mkv/…]` — **[TODO: record arena + vehicle + visible camera/LiDAR + basic motion]**
 
 ---
 
@@ -562,7 +562,7 @@ A `debug_text_mode: true` parameter lets a member type a line instead of speakin
 
 **Deliverables:**
 
-- [Video_Task4.webm](video/Video_Task4.webm) — spoken command `find purple and yellow`, `[STT]`/`[CMD]`/`[PLAN]`/`[DRIVE]` logs, autonomous search in Gazebo/RViz with labelled camera detections, terminal output ending in `[FOUND]` and `[MISSION] status=SUCCESS`.
+- [Video_Task4.mp4](video/Video_Task4.mp4) — spoken command `find purple and yellow`, `[STT]`/`[CMD]`/`[PLAN]`/`[DRIVE]` logs, autonomous search in Gazebo/RViz with labelled camera detections, terminal output ending in `[FOUND]` and `[MISSION] status=SUCCESS`.
 
 ---
 
@@ -573,13 +573,13 @@ This section is marked for the **whole group**. Confirm every item before you zi
 | File | Linked task | Content |
 |------|-------------|---------|
 | `README.md` | 5 | Tasks 1–4 documented, including Task 4; recheck against `README_TEMPLATE.md` and fill in the TF-tree screenshot before zipping |
-| [Video_Task2.webm](video/Video_Task2.webm) | 2 | Vehicle/map, visible camera/LiDAR and basic motion |
+| `Video_Task2.*` | 2 | **To record:** vehicle/map, visible camera/LiDAR and basic motion |
 | [Video_Task3.webm](video/Video_Task3.webm) | 3 | Four-colour typed search: Yellow → Purple → Orange → Green; visible terminal and SUCCESS |
-| [Video_Task4.webm](video/Video_Task4.webm) | 4 | Spoken command `find purple and yellow` with `speech_command.py` running; `[STT]` lines, autonomous search and `[MISSION] status=SUCCESS` |
+| [Video_Task4.mp4](video/Video_Task4.mp4) | 4 | Spoken command `find purple and yellow` with `speech_command.py` running; `[STT]` lines, autonomous search and `[MISSION] status=SUCCESS` |
 
 > In `Video_Task3` and `Video_Task4`, the terminal or rosout log **must remain visible throughout**. A video without that output is incomplete.
 
-**Zipping the submission:** from the repository root:
+**Zipping the submission:** from the repository root, once `Video_Task2` is also in `video/`:
 
 ```bash
 cd ~/EE5112_MiniLab1.2
