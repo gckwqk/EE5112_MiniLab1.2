@@ -532,7 +532,7 @@ Wait for `[READY]`, type the English command and press ENTER. `cancel` stops; `q
 
 ---
 
-## 8. Task 4 — How Student C (Edwin) connected speech to Task 3
+## 8. Task 4 — Connecting speech module to task 3
 
 `scripts/speech_command.py` is a small terminal node, run the same way as `task3_command.py`: press ENTER, speak one English colour command, and it is transcribed, validated and — only if valid — forwarded to the existing Task 3 mission node. No teleoperation or extra start trigger is involved; the vehicle begins the same autonomous search Task 3 already performs.
 
