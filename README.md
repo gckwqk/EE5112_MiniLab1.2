@@ -642,7 +642,7 @@ A `debug_text_mode: true` parameter lets a member type a line instead of speakin
 
 **Deliverables:**
 
-- [Video_Task4.mp4](video/Video_Task4.mp4) — spoken command `find purple and yellow`, `[STT]`/`[CMD]`/`[PLAN]`/`[DRIVE]` logs, autonomous search in Gazebo/RViz with labelled camera detections, terminal output ending in `[FOUND]` and `[MISSION] status=SUCCESS`.
+- [Video_Task4.webm](video/Video_Task4.webm) — spoken command `find purple and yellow`, `[STT]`/`[CMD]`/`[PLAN]`/`[DRIVE]` logs, autonomous search in Gazebo/RViz with labelled camera detections, terminal output ending in `[FOUND]` and `[MISSION] status=SUCCESS`.
 
 ---
 
@@ -655,7 +655,7 @@ This section is marked for the **whole group**. Confirm every item before you zi
 | `README.md` | 5 | Tasks 1–4 documentented; TF-tree screenshot included under Section 4 |
 | [Video_Task2.webm](video/Video_Task2.webm) | 2 | Vehicle, map with lidar & camera visible → basic motion using teleop with live plot of trajectory |
 | [Video_Task3.webm](video/Video_Task3.webm) | 3 | Four-colour typed search: Yellow → Purple → Orange → Green; visible terminal and SUCCESS |
-| [Video_Task4.mp4](video/Video_Task4.mp4) | 4 | Spoken command `find purple and yellow` with `speech_command.py` running; `[STT]` lines, autonomous search and `[MISSION] status=SUCCESS` |
+| [Video_Task4.webm](video/Video_Task4.webm) | 4 | Spoken command `find purple and yellow` with `speech_command.py` running; `[STT]` lines, autonomous search and `[MISSION] status=SUCCESS` |
 
 > In `Video_Task3` and `Video_Task4`, the terminal or rosout log **must remain visible throughout**. A video without that output is incomplete.
 
