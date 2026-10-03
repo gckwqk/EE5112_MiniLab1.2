@@ -261,7 +261,7 @@ ros2 run tf2_ros tf2_echo base_link camera_link
 ros2 run tf2_ros tf2_echo base_link laser_link
 ```
 
-**TF Tree Image**
+**TF Tree Image: **
 [tf_tree.png](figures/tf_tree.png)
 
 ---
@@ -328,13 +328,13 @@ The use of front-wheel Ackermann steering with rear-wheel drive in this MiniLab 
 
 **References used for Task 1:**
 
-1. R. Siegwart, I. R. Nourbakhsh, and D. Scaramuzza, *Introduction to Autonomous Mobile Robots*, 2nd ed. Cambridge, MA, USA: MIT Press, 2011.
+[1] R. Siegwart, I. R. Nourbakhsh, and D. Scaramuzza, *Introduction to Autonomous Mobile Robots*, 2nd ed. Cambridge, MA, USA: MIT Press, 2011.
 
-2. K. M. Lynch and F. C. Park, *Modern Robotics: Mechanics, Planning, and Control*. Cambridge, U.K.: Cambridge University Press, 2017.
+[2] K. M. Lynch and F. C. Park, *Modern Robotics: Mechanics, Planning, and Control*. Cambridge, U.K.: Cambridge University Press, 2017.
 
-3. R. Rajamani, *Vehicle Dynamics and Control*, 2nd ed. New York, NY, USA: Springer, 2012, doi: 10.1007/978-1-4614-1433-9.
+[3] R. Rajamani, *Vehicle Dynamics and Control*, 2nd ed. New York, NY, USA: Springer, 2012, doi: 10.1007/978-1-4614-1433-9.
 
-4. G. Wampfler, M. Salecker, and J. Wittenburg, "Kinematics, dynamics, and control of omnidirectional vehicles with Mecanum wheels," *Mechanics of Structures and Machines*, vol. 17, no. 2, pp. 165–177, 1989, doi: 10.1080/15397738909412814.
+[4] G. Wampfler, M. Salecker, and J. Wittenburg, "Kinematics, dynamics, and control of omnidirectional vehicles with Mecanum wheels," *Mechanics of Structures and Machines*, vol. 17, no. 2, pp. 165–177, 1989, doi: 10.1080/15397738909412814.
 
 ---
 
@@ -528,9 +528,9 @@ Verified command interfaces are both front steering `position` interfaces and bo
 
 **Deliverables:**
 
-- Modelling screenshot: [Task2_vehicle.png](figures/Task2_vehicle.png) - Image of modelled ackermann vehicle with camera and lidar mounted on the chassis
-- TF tree: [tf_tree.png](figures/tf_tree.png) - TF tree of base_link → camera_link and laser_link
-- Video: [Video_Task2.webm](video/Video_Task2.webm) - Vehicle, map with lidar & camera visible → basic motion using teleop with live plot of trajectory
+- [Task2_vehicle.png](figures/Task2_vehicle.png) - Image of modelled ackermann vehicle with camera and lidar mounted on the chassis
+- [tf_tree.png](figures/tf_tree.png) - TF tree of base_link → camera_link and laser_link
+- [Video_Task2.webm](video/Video_Task2.webm) - Vehicle, map with lidar & camera visible → basic motion using teleop with live plot of trajectory
 
 ---
 
@@ -652,7 +652,7 @@ This section is marked for the **whole group**. Confirm every item before you zi
 
 | File | Linked task | Content |
 |------|-------------|---------|
-| `README.md` | 5 | Tasks 1–4 documented, including Task 4; TF-tree screenshot included under Section 4 |
+| `README.md` | 5 | Tasks 1–4 documentented; TF-tree screenshot included under Section 4 |
 | [Video_Task2.webm](video/Video_Task2.webm) | 2 | Vehicle, map with lidar & camera visible → basic motion using teleop with live plot of trajectory |
 | [Video_Task3.webm](video/Video_Task3.webm) | 3 | Four-colour typed search: Yellow → Purple → Orange → Green; visible terminal and SUCCESS |
 | [Video_Task4.mp4](video/Video_Task4.mp4) | 4 | Spoken command `find purple and yellow` with `speech_command.py` running; `[STT]` lines, autonomous search and `[MISSION] status=SUCCESS` |
@@ -726,8 +726,6 @@ Put the **same** four numbers in both `<ambient>` and `<diffuse>`.
 
 ## 11. References / third-party code
 
-- Task 1 Reference: R. Siegwart, I. R. Nourbakhsh, and D. Scaramuzza, *Introduction to Autonomous Mobile Robots*, 2nd ed. Cambridge, MA, USA: MIT Press, 2011.
-- Task 1 Reference: K. M. Lynch and F. C. Park, *Modern Robotics: Mechanics, Planning, and Control*. Cambridge, U.K.: Cambridge University Press, 2017.
 - EE5112 Mini-Lab specification and `MiniLab1.2_platform_specs_5112.json` — authoritative vehicle dimensions, sensor transforms, arena geometry, block positions/colours and START pose.
 - ROS 2 Humble `ros2_control` / `ros2_controllers` — simulated steering and rear-wheel control.
 - `gazebo_ros` and `gazebo_ros2_control` — Gazebo Classic integration and simulated hardware.
