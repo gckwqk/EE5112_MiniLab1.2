@@ -261,7 +261,7 @@ ros2 run tf2_ros tf2_echo base_link camera_link
 ros2 run tf2_ros tf2_echo base_link laser_link
 ```
 
-**TF Tree Image: **
+**TF Tree Image:**
 [tf_tree.png](figures/tf_tree.png)
 
 ---
