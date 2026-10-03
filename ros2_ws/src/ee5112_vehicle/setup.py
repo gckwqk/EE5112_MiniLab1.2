@@ -212,21 +212,6 @@ setup(
         'console_scripts': [
 
             # --------------------------------------------------
-            # Task 2 trajectory experiment
-            # --------------------------------------------------
-            #
-            # Example:
-            #
-            # ros2 run ee5112_vehicle trajectory_experiment \
-            #   --ros-args \
-            #   -p experiment:=gentle_left
-            #
-
-            'trajectory_experiment = '
-            'ee5112_vehicle.trajectory_experiment:main',
-
-
-            # --------------------------------------------------
             # Task 2 live trajectory visualisation
             # --------------------------------------------------
             #

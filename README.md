@@ -81,8 +81,6 @@ source /opt/ros/humble/setup.bash
 rosdep install --from-paths ros2_ws/src --ignore-src -r -y
 ```
 
-Task 2 trajectory plotting additionally uses Matplotlib (`python3-matplotlib`), as described in Section 12.
-
 **Additional Task 4 dependencies:**
 
 - Speech-to-text: [`SpeechRecognition`](https://pypi.org/project/SpeechRecognition/) (`python3-speechrecognition`), `PyAudio`/PortAudio for microphone capture (`python3-pyaudio`), and `flac` (used by the library's Google Web Speech API request).
@@ -109,6 +107,32 @@ ros2 launch ee5112_vehicle arena.launch.py
 
 This starts the prescribed three-room Gazebo arena, publishes the Task 2 robot description, spawns the Ackermann vehicle at START `(0.55, 0.35, 0)`, loads `gazebo_ros2_control`, and starts the joint-state, steering and rear-wheel controllers.
 
+**Task 2 basic-motion demonstration:**
+
+Terminal 1 — vehicle and arena:
+
+```bash
+cd ~/EE5112_MiniLab1.2
+source ~/EE5112_MiniLab1.2/setup_minilab.bash
+ros2 launch ee5112_vehicle arena.launch.py sensor_visuals:=true
+```
+
+Terminal 2 — live `x`, `y`, `θ`, `v`, `δ` plot:
+
+```bash
+cd ~/EE5112_MiniLab1.2
+source ~/EE5112_MiniLab1.2/setup_minilab.bash
+ros2 run ee5112_vehicle live_trajectory_plot
+```
+
+Terminal 3 — keyboard Ackermann teleoperation:
+
+```bash
+cd ~/EE5112_MiniLab1.2
+source ~/EE5112_MiniLab1.2/setup_minilab.bash
+ros2 run ee5112_vehicle ackermann_teleop
+```
+
 **Launching the full Task 3 + Task 4 stack in one go:** `bash tmux_start.bash`, run from the repository root (or with `MINILAB_WORKSPACE` set to point at a different checkout), opens one tmux session with a pane per node — Gazebo, colour detector, AMCL, the Ackermann converter, the Task 3 mission, Nav2, RViz, the typed-command interface and the Task 4 speech interface — each already sourced and ready. This is the quickest way to reproduce the complete system end to end.
 
 Verification:
@@ -122,7 +146,7 @@ ros2 topic list | grep -E "camera|scan"
 **World / map files used for marking:**
 
 - World: `ee5112_vehicle/worlds/arena.world`
-- Map / occupancy: no occupancy-grid file currently required; layout is known a priori
+- Map / occupancy: `ee5112_vehicle/maps/arena_map.yaml` with `ee5112_vehicle/maps/arena_map.pgm`
 - Specs: `ee5112_vehicle/config/MiniLab1.2_platform_specs_5112.json`
 - Generator: `ee5112_vehicle/scripts/generate_arena.py`
 
@@ -158,13 +182,11 @@ ros2_ws/src/ee5112_vehicle/
 │   └── MiniLab1.2_platform_specs_5112.json
 ├── ee5112_vehicle/
 │   ├── __init__.py
-│   ├── trajectory_experiment.py
 │   ├── live_trajectory_plot.py
 │   └── ackermann_teleop.py
 ├── launch/
 │   ├── arena.launch.py
 │   ├── display.launch.py
-│   ├── trajectory_test.launch.py
 │   ├── amcl.launch.py
 │   ├── colour_detector.launch.py
 │   ├── cmd_vel_to_ackermann.launch.py
@@ -192,8 +214,7 @@ ros2_ws/src/ee5112_vehicle/
 │   └── test_task4_speech.py
 ├── urdf/vehicle.urdf.xacro
 ├── worlds/
-│   ├── arena.world
-│   └── trajectory_test.world
+│   └── arena.world
 ├── package.xml
 ├── setup.cfg
 └── setup.py
@@ -209,7 +230,7 @@ Paths in the table are relative to `ros2_ws/src/ee5112_vehicle/`. Task 3 nodes r
 | `scripts/generate_arena.py` | Rebuild arena from supplied JSON | Goh Chian Kai |
 | `launch/arena.launch.py` | Launch arena and spawn vehicle at START | Goh Chian Kai |
 | `launch/display.launch.py` | URDF/TF/RViz inspection | Goh Chian Kai |
-| `ee5112_vehicle/trajectory_experiment.py`, `ee5112_vehicle/live_trajectory_plot.py`, `ee5112_vehicle/ackermann_teleop.py`, `launch/trajectory_test.launch.py` | Task 2 basic-motion and trajectory validation: Ackermann command/measured models, keyboard teleoperation, live `x`, `y`, `θ`, `v`, `δ` dashboard, recording and analysis | Goh Chian Kai |
+| `ee5112_vehicle/live_trajectory_plot.py`, `ee5112_vehicle/ackermann_teleop.py` | Task 2 basic-motion and trajectory validation: Ackermann command/measured models, keyboard teleoperation, live `x`, `y`, `θ`, `v`, `δ` dashboard, recording and analysis | Goh Chian Kai |
 | `scripts/colour_detector.py`, `config/colour_detector.yaml` | Camera colour labels → `/detected_colours`; annotated debug images | Mohammad Asif Bin Abdul Sahid |
 | `scripts/colour_confirmation.py` | Shared fresh-camera and base_link proximity confirmation | Mohammad Asif Bin Abdul Sahid |
 | `scripts/cmd_vel_to_ackermann.py`, `config/cmd_vel_to_ackermann.yaml` | Convert `/cmd_vel` to limited steering/rear-wheel commands | Mohammad Asif Bin Abdul Sahid |
@@ -240,6 +261,7 @@ ros2 run tf2_ros tf2_echo base_link camera_link
 ros2 run tf2_ros tf2_echo base_link laser_link
 ```
 
+**TF Tree Image**
 [tf_tree.png](figures/tf_tree.png)
 
 ---
@@ -430,10 +452,8 @@ Owner: Goh Chian Kai **A0330123B**
 - Specs: `ee5112_vehicle/config/MiniLab1.2_platform_specs_5112.json`
 - Arena generator: `ee5112_vehicle/scripts/generate_arena.py`
 - Launch / spawn: `ee5112_vehicle/launch/arena.launch.py`
-- Trajectory validation: `ee5112_vehicle/trajectory_experiment.py`
 - Live trajectory display: `ee5112_vehicle/live_trajectory_plot.py`
 - Keyboard Ackermann teleoperation: `ee5112_vehicle/ackermann_teleop.py`
-- Trajectory-test launch: `ee5112_vehicle/launch/trajectory_test.launch.py`
 
 **Implemented platform:**
 
@@ -557,7 +577,7 @@ source ~/EE5112_MiniLab1.2/setup_minilab.bash
 ros2 launch ee5112_vehicle task3_demo.launch.py
 ```
 
-The combined launch starts the Task 2 platform and Task 3 stack. In another terminal, source ROS and the same root `install/setup.bash`, then run:
+The combined launch starts the Task 2 platform and Task 3 stack. In another terminal, source the project environment with `source ~/EE5112_MiniLab1.2/setup_minilab.bash`, then run:
 
 ```bash
 python3 ros2_ws/src/ee5112_vehicle/scripts/task3_command.py
@@ -632,7 +652,7 @@ This section is marked for the **whole group**. Confirm every item before you zi
 
 | File | Linked task | Content |
 |------|-------------|---------|
-| `README.md` | 5 | Tasks 1–4 documented, including Task 4; recheck against `README_TEMPLATE.md` and fill in the TF-tree screenshot before zipping |
+| `README.md` | 5 | Tasks 1–4 documented, including Task 4; TF-tree screenshot included under Section 4 |
 | [Video_Task2.webm](video/Video_Task2.webm) | 2 | Vehicle, map with lidar & camera visible → basic motion using teleop with live plot of trajectory |
 | [Video_Task3.webm](video/Video_Task3.webm) | 3 | Four-colour typed search: Yellow → Purple → Orange → Green; visible terminal and SUCCESS |
 | [Video_Task4.mp4](video/Video_Task4.mp4) | 4 | Spoken command `find purple and yellow` with `speech_command.py` running; `[STT]` lines, autonomous search and `[MISSION] status=SUCCESS` |
@@ -706,12 +726,12 @@ Put the **same** four numbers in both `<ambient>` and `<diffuse>`.
 
 ## 11. References / third-party code
 
+- Task 1 Reference: R. Siegwart, I. R. Nourbakhsh, and D. Scaramuzza, *Introduction to Autonomous Mobile Robots*, 2nd ed. Cambridge, MA, USA: MIT Press, 2011.
+- Task 1 Reference: K. M. Lynch and F. C. Park, *Modern Robotics: Mechanics, Planning, and Control*. Cambridge, U.K.: Cambridge University Press, 2017.
 - EE5112 Mini-Lab specification and `MiniLab1.2_platform_specs_5112.json` — authoritative vehicle dimensions, sensor transforms, arena geometry, block positions/colours and START pose.
 - ROS 2 Humble `ros2_control` / `ros2_controllers` — simulated steering and rear-wheel control.
 - `gazebo_ros` and `gazebo_ros2_control` — Gazebo Classic integration and simulated hardware.
 - `robot_state_publisher`, Xacro and TF2 — robot description and TF publication/verification.
-- R. Siegwart, I. R. Nourbakhsh, and D. Scaramuzza, *Introduction to Autonomous Mobile Robots*, 2nd ed. Cambridge, MA, USA: MIT Press, 2011.
-- K. M. Lynch and F. C. Park, *Modern Robotics: Mechanics, Planning, and Control*. Cambridge, U.K.: Cambridge University Press, 2017.
 - [`SpeechRecognition`](https://pypi.org/project/SpeechRecognition/) (PyPI library used by `speech_command.py`) and its [Google Web Speech API](https://cloud.google.com/speech-to-text) backend (default `engine`); [CMU Sphinx / `pocketsphinx`](https://cmusphinx.github.io/) (optional offline `engine: sphinx`).
 
 ---
