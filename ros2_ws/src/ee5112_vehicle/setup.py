@@ -1,26 +1,40 @@
-from setuptools import find_packages, setup
+#!/usr/bin/env python3
 
 import os
 
 from glob import glob
 
+from setuptools import find_packages
+from setuptools import setup
+
+
+# ==============================================================
+# PACKAGE
+# ==============================================================
 
 package_name = 'ee5112_vehicle'
 
 
 setup(
 
+    # ==========================================================
+    # PACKAGE INFORMATION
+    # ==========================================================
+
     name=package_name,
 
     version='0.0.0',
 
     packages=find_packages(
-        exclude=['test']
+        exclude=[
+            'test',
+            'tests'
+        ]
     ),
 
 
     # ==========================================================
-    # PACKAGE DATA
+    # DATA FILES
     # ==========================================================
 
     data_files=[
@@ -31,6 +45,7 @@ setup(
 
         (
             'share/ament_index/resource_index/packages',
+
             [
                 'resource/' + package_name
             ]
@@ -43,6 +58,7 @@ setup(
 
         (
             'share/' + package_name,
+
             [
                 'package.xml'
             ]
@@ -111,15 +127,23 @@ setup(
                 'config'
             ),
 
-            glob('config/*.yaml') + glob('config/*.json') + glob('config/*.xml')
+            glob('config/*.yaml')
+            + glob('config/*.json')
+            + glob('config/*.xml')
         ),
 
+
         # ------------------------------------------------------
-        # ROS occupancy maps (keep each YAML beside its image)
+        # ROS occupancy maps
         # ------------------------------------------------------
 
         (
-            os.path.join('share', package_name, 'maps'),
+            os.path.join(
+                'share',
+                package_name,
+                'maps'
+            ),
+
             glob('maps/*.yaml')
             + glob('maps/*.pgm')
             + glob('maps/*.png')
@@ -127,19 +151,26 @@ setup(
 
 
         # ------------------------------------------------------
-        # Helper scripts launched from the package share folder
+        # Helper scripts
         # ------------------------------------------------------
 
         (
-            os.path.join('share', package_name, 'scripts'),
-            glob('scripts/*.py')
+            os.path.join(
+                'share',
+                package_name,
+                'scripts'
+            ),
+
+            glob(
+                'scripts/*.py'
+            )
         ),
 
     ],
 
 
     # ==========================================================
-    # PYTHON PACKAGE SETTINGS
+    # PYTHON DEPENDENCIES
     # ==========================================================
 
     install_requires=[
@@ -150,17 +181,23 @@ setup(
 
 
     # ==========================================================
-    # PACKAGE INFORMATION
+    # MAINTAINER INFORMATION
     # ==========================================================
 
     maintainer='EE5112 Group13',
 
     maintainer_email='gckgck71@gmail.com',
 
+
+    # ==========================================================
+    # DESCRIPTION
+    # ==========================================================
+
     description=(
         'EE5112 Ackermann vehicle simulation with '
-        'RGB camera, 2D LiDAR, Gazebo control and '
-        'trajectory experiments'
+        'RGB camera, 2D LiDAR, Gazebo control, '
+        'trajectory experiments and live trajectory '
+        'visualisation'
     ),
 
     license='MIT',
@@ -174,18 +211,40 @@ setup(
 
         'console_scripts': [
 
+            # --------------------------------------------------
             # Task 2 trajectory experiment
+            # --------------------------------------------------
             #
-            # Run using:
+            # Example:
             #
-            # ros2 run ee5112_vehicle trajectory_experiment
+            # ros2 run ee5112_vehicle trajectory_experiment \
+            #   --ros-args \
+            #   -p experiment:=gentle_left
             #
-            # Select experiment using:
-            #
-            # --ros-args -p experiment:=straight
-            #
+
             'trajectory_experiment = '
             'ee5112_vehicle.trajectory_experiment:main',
+
+
+            # --------------------------------------------------
+            # Task 2 live trajectory visualisation
+            # --------------------------------------------------
+            #
+            # Run before trajectory_experiment:
+            #
+            # ros2 run ee5112_vehicle live_trajectory_plot
+            #
+
+            'live_trajectory_plot = '
+            'ee5112_vehicle.live_trajectory_plot:main',
+
+
+            # --------------------------------------------------
+            # Task 2 keyboard Ackermann teleoperation
+            # --------------------------------------------------
+
+            'ackermann_teleop = '
+            'ee5112_vehicle.ackermann_teleop:main',
 
         ],
 

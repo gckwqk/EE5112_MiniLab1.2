@@ -7,9 +7,13 @@ from launch import LaunchDescription
 from launch.actions import (
     IncludeLaunchDescription,
     RegisterEventHandler,
+    DeclareLaunchArgument,
+    OpaqueFunction,
 )
 
 from launch.event_handlers import OnProcessExit
+
+from launch.substitutions import LaunchConfiguration
 
 from launch.launch_description_sources import (
     PythonLaunchDescriptionSource,
@@ -20,7 +24,9 @@ from launch_ros.actions import Node
 import xacro
 
 
-def generate_launch_description():
+def _launch_setup(context):
+
+    sensor_visuals = LaunchConfiguration('sensor_visuals').perform(context)
 
     # ==========================================================
     # PACKAGE
@@ -82,7 +88,8 @@ def generate_launch_description():
     robot_description_xml = xacro.process_file(
         xacro_file,
         mappings={
-            'controllers_file': controllers_file
+            'controllers_file': controllers_file,
+            'sensor_visuals': sensor_visuals
         }
     ).toxml()
 
@@ -361,7 +368,7 @@ def generate_launch_description():
     # LAUNCH DESCRIPTION
     # ==========================================================
 
-    return LaunchDescription([
+    return [
 
         # Start the prescribed arena.
         gazebo,
@@ -377,5 +384,26 @@ def generate_launch_description():
 
         # Spawn steering and rear-drive controllers afterward.
         start_vehicle_controllers,
+
+    ]
+
+
+
+def generate_launch_description():
+
+    return LaunchDescription([
+
+        DeclareLaunchArgument(
+            'sensor_visuals',
+            default_value='false',
+            description=(
+                'Show Gazebo camera and LiDAR sensor visualizations '
+                '(true/false).'
+            )
+        ),
+
+        OpaqueFunction(
+            function=_launch_setup
+        ),
 
     ])

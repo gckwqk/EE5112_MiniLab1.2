@@ -7,7 +7,7 @@ WORKSPACE="${MINILAB_WORKSPACE:-$HOME/EE5112_MiniLab1.2}"
 ROS_SETUP=/opt/ros/humble/setup.bash
 
 if ! tmux has-session -t "=$SESSION_NAME" 2>/dev/null; then
-  for setup_file in "$ROS_SETUP" "$WORKSPACE/install/setup.bash"; do
+  for setup_file in "$WORKSPACE/setup_minilab.bash"; do
     if [[ ! -f "$setup_file" ]]; then
       printf 'Missing setup file: %s\nBuild the workspace or set MINILAB_WORKSPACE.\n' "$setup_file" >&2
       exit 1
@@ -21,8 +21,8 @@ if ! tmux has-session -t "=$SESSION_NAME" 2>/dev/null; then
   # bash pane starts from scratch (it does not inherit this script's own
   # shell environment), so this has to be sent as a real command in each
   # pane, not just exported here. %q safely quotes local paths.
-  printf -v PANE_SETUP 'source %q && source %q && export AMENT_PREFIX_PATH=%q":$AMENT_PREFIX_PATH" && cd %q && ' \
-    "$ROS_SETUP" "$WORKSPACE/install/setup.bash" "$WORKSPACE/install/ee5112_vehicle" "$WORKSPACE"
+  printf -v PANE_SETUP 'source %q && cd %q && ' \
+    "$WORKSPACE/setup_minilab.bash" "$WORKSPACE"
 
   # Create a new session; explicit Bash matches the setup.bash files.
   tmux new-session -s "$SESSION_NAME" -n "$SESSION_NAME" -d \

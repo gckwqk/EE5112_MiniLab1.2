@@ -30,7 +30,7 @@ Implemented Task 2 uses ROS 2 Humble and Gazebo Classic 11. Required packages in
 - RViz 2 and `rqt_image_view` for verification
 - `ackermann_msgs` is included; the implemented Task 3 interface uses `/cmd_vel` (`geometry_msgs/Twist`) with a converter to steering and rear-wheel commands
 
-Task 2 installation:
+**Additional Task 2 installation:**
 
 ```bash
 sudo apt update
@@ -50,6 +50,22 @@ sudo apt install \
   ros-humble-rviz2 \
   ros-humble-ackermann-msgs
 ```
+
+The evaluation of trajectory for task 2 uses Matplotlib and ROS 2 odometry/message packages.
+
+Install these if they are not already present:
+
+``` bash
+sudo apt update
+sudo apt install \
+  python3-matplotlib \
+  ros-humble-nav-msgs \
+  ros-humble-sensor-msgs \
+  ros-humble-std-msgs \
+  ros-humble-gazebo-plugins
+```
+
+`ros-humble-gazebo-plugins` supplies the Gazebo Classic P3D plugin used for `/odom`. The previously listed Gazebo, `gazebo_ros2_control`, `ros2_control`, controller, Xacro, TF, RViz and camera-verification dependencies remain required.
 
 **Additional Task 3 dependencies:**
 
@@ -87,7 +103,7 @@ Current working package: `ee5112_vehicle`. Repository root: `~/EE5112_MiniLab1.2
 cd ~/EE5112_MiniLab1.2
 source /opt/ros/humble/setup.bash
 colcon build --base-paths ros2_ws/src --symlink-install
-source install/setup.bash
+source ~/EE5112_MiniLab1.2/setup_minilab.bash
 ros2 launch ee5112_vehicle arena.launch.py
 ```
 
@@ -125,6 +141,8 @@ Wait for `[SPEECH_READY]`, press ENTER, then speak one English colour command (e
 
 ## 3. Code structure
 
+At repository root, `setup_minilab.bash` is the common runtime environment helper and `tmux_start.bash` uses it for every pane.
+
 Main implementation files are shown below; earlier Stage 1 and backup files are omitted for readability.
 
 ```text
@@ -140,7 +158,9 @@ ros2_ws/src/ee5112_vehicle/
 │   └── MiniLab1.2_platform_specs_5112.json
 ├── ee5112_vehicle/
 │   ├── __init__.py
-│   └── trajectory_experiment.py
+│   ├── trajectory_experiment.py
+│   ├── live_trajectory_plot.py
+│   └── ackermann_teleop.py
 ├── launch/
 │   ├── arena.launch.py
 │   ├── display.launch.py
@@ -189,7 +209,7 @@ Paths in the table are relative to `ros2_ws/src/ee5112_vehicle/`. Task 3 nodes r
 | `scripts/generate_arena.py` | Rebuild arena from supplied JSON | Goh Chian Kai |
 | `launch/arena.launch.py` | Launch arena and spawn vehicle at START | Goh Chian Kai |
 | `launch/display.launch.py` | URDF/TF/RViz inspection | Goh Chian Kai |
-| `ee5112_vehicle/trajectory_experiment.py`, `launch/trajectory_test.launch.py` | Task 2 trajectory recording, analysis and plots | Goh Chian Kai |
+| `ee5112_vehicle/trajectory_experiment.py`, `ee5112_vehicle/live_trajectory_plot.py`, `ee5112_vehicle/ackermann_teleop.py`, `launch/trajectory_test.launch.py` | Task 2 basic-motion and trajectory validation: Ackermann command/measured models, keyboard teleoperation, live `x`, `y`, `θ`, `v`, `δ` dashboard, recording and analysis | Goh Chian Kai |
 | `scripts/colour_detector.py`, `config/colour_detector.yaml` | Camera colour labels → `/detected_colours`; annotated debug images | Mohammad Asif Bin Abdul Sahid |
 | `scripts/colour_confirmation.py` | Shared fresh-camera and base_link proximity confirmation | Mohammad Asif Bin Abdul Sahid |
 | `scripts/cmd_vel_to_ackermann.py`, `config/cmd_vel_to_ackermann.yaml` | Convert `/cmd_vel` to limited steering/rear-wheel commands | Mohammad Asif Bin Abdul Sahid |
@@ -207,14 +227,20 @@ Paths in the table are relative to `ros2_ws/src/ee5112_vehicle/`. Task 3 nodes r
 
 `base_link` → `camera_link` and `base_link` → `laser_link` are fixed joints.
 
-- Camera: translation `(0.14, 0.00, 0.08) m`, RPY `(0,0,0)`.
-- LiDAR: translation `(0.00, 0.00, 0.18) m`, RPY `(0,0,0)`.
+TF has been verified with TF2 tools. The fixed transforms reported by `tf2_echo` are:
 
-TF has been verified with TF2 tools.
+- `base_link → camera_link`: translation `[0.140, 0.000, 0.080] m`, quaternion `[0, 0, 0, 1]`, RPY `[0°, 0°, 0°]`.
+- `base_link → laser_link`: translation `[0.000, 0.000, 0.180] m`, quaternion `[0, 0, 0, 1]`, RPY `[0°, 0°, 0°]`.
 
-![TF tree](figures/tf_tree.png)
+Verification commands:
 
-> **TODO before submission:** add the final TF-tree screenshot at `figures/tf_tree.png`.
+```bash
+ros2 run tf2_tools view_frames
+ros2 run tf2_ros tf2_echo base_link camera_link
+ros2 run tf2_ros tf2_echo base_link laser_link
+```
+
+[tf_tree.png](figures/tf_tree.png)
 
 ---
 
@@ -404,6 +430,10 @@ Owner: Goh Chian Kai **A0330123B**
 - Specs: `ee5112_vehicle/config/MiniLab1.2_platform_specs_5112.json`
 - Arena generator: `ee5112_vehicle/scripts/generate_arena.py`
 - Launch / spawn: `ee5112_vehicle/launch/arena.launch.py`
+- Trajectory validation: `ee5112_vehicle/trajectory_experiment.py`
+- Live trajectory display: `ee5112_vehicle/live_trajectory_plot.py`
+- Keyboard Ackermann teleoperation: `ee5112_vehicle/ackermann_teleop.py`
+- Trajectory-test launch: `ee5112_vehicle/launch/trajectory_test.launch.py`
 
 **Implemented platform:**
 
@@ -416,6 +446,18 @@ Owner: Goh Chian Kai **A0330123B**
 - Arena: `4.20 × 2.60 m`, three rooms + corridor
 - Seven static `0.08 m` coloured cubes using the mandatory RGBA values
 - START: `(0.55, 0.35, 0)`
+- Keyboard Ackermann teleoperation for basic-motion testing using the existing steering-position and rear-wheel-velocity controllers
+- Live Task 2 dashboard plotting/recording `x`, `y`, heading `θ`, longitudinal velocity `v` and equivalent steering angle `δ`
+- Command-input bicycle model, measured-input bicycle model and Gazebo `/odom` ground truth displayed together for trajectory comparison
+- Gazebo camera/LiDAR visualisation selectable at launch with `sensor_visuals:=true/false` without disabling the sensor topics
+
+### Basic-motion and trajectory experiment
+
+Basic motion was demonstrated in the prescribed Gazebo arena using `ackermann_teleop.py`. Keyboard inputs vary longitudinal speed and equivalent Ackermann steering angle while the node converts the centreline steering request into individual front-wheel steering commands and rear-wheel velocity commands. Straight motion, left/right curved motion, acceleration/deceleration, stopping and steering-centre recovery were exercised while respecting the `0.50 m/s` speed and `±35°` steering limits.
+
+During the same run, `live_trajectory_plot.py` displayed the required `x`, `y`, `θ`, `v` and `δ` quantities in real time. The x-y panel compares the command-input bicycle model, measured-input bicycle model and Gazebo ground truth. The heading panel compares `θ`; the velocity panel compares commanded speed, wheel-derived speed and Gazebo `/odom` speed; and the steering panel compares commanded and measured equivalent `δ`. The time-series panels use a rolling window for teleoperation, while the x-y panel retains the complete driven path.
+
+**Trajectory Analysis.** The recorded motion is consistent with Ackermann non-holonomic behaviour: steering produces continuous curved paths and progressive heading change rather than sideways translation or an in-place rotation. The velocity traces show close agreement between commanded, wheel-derived and Gazebo `/odom` speed during steady motion; for example, a `0.06 m/s` command produced wheel-derived and `/odom` values essentially equal to `0.06 m/s`. Commanded and measured steering also track closely for positive and negative steering inputs. The measured-input bicycle trajectory follows the overall Gazebo path more closely than the command-input model, while residual offset remains because the ideal bicycle model omits actuator transients, contact dynamics, wheel slip and other Gazebo physics. The command-input model accumulates larger position/heading error during turning because it propagates ideal requested inputs rather than realised wheel and steering measurements. When `δ` returns to zero, heading becomes approximately constant; any heading error accumulated during the preceding turn remains, consistent with `θ̇ = (v/L)tanδ`.
 
 **Key snippet:**
 
@@ -433,6 +475,19 @@ Owner: Goh Chian Kai **A0330123B**
 </ros2_control>
 ```
 
+The Task 2 teleoperation/validation path publishes the model and telemetry interfaces consumed by the live dashboard:
+
+```python
+self.command_model_pub = self.create_publisher(
+    Pose2D, '/task2/command_model_pose', 10)
+self.measured_model_pub = self.create_publisher(
+    Pose2D, '/task2/measured_model_pose', 10)
+self.telemetry_pub = self.create_publisher(
+    Float64MultiArray, '/task2/telemetry', 10)
+```
+
+The telemetry contains elapsed time, commanded/model/measured/Gazebo velocity and commanded/measured equivalent steering, allowing the live plot to display `x`, `y`, `θ`, `v` and `δ` together.
+
 **Verification performed:**
 
 ```bash
@@ -441,16 +496,21 @@ ros2 control list_hardware_interfaces
 ros2 topic list | grep -E "camera|scan"
 ros2 topic echo /scan --once
 ros2 run rqt_image_view rqt_image_view
+ros2 run tf2_tools view_frames
+ros2 run tf2_ros tf2_echo base_link camera_link
+ros2 run tf2_ros tf2_echo base_link laser_link
+ros2 topic echo /task2/telemetry --once
+ros2 topic info /task2/telemetry -v
 ```
 
 Verified controllers: `joint_state_broadcaster`, `steering_controller`, `rear_wheel_controller`
-Verified command interfaces are both front steering `position` interfaces and both rear wheel `velocity` interfaces. Open-loop tests verified straight propulsion, left/right steering and combined curved motion.
+Verified command interfaces are both front steering `position` interfaces and both rear wheel `velocity` interfaces. Basic-motion tests verified straight propulsion, left/right Ackermann steering, acceleration/deceleration, stopping and combined curved motion under keyboard teleoperation. The Task 2 video records the vehicle moving in Gazebo together with the live x-y, `θ`, `v` and `δ` plots. TF2 verification confirmed `base_link → camera_link = [0.140, 0.000, 0.080] m` and `base_link → laser_link = [0.000, 0.000, 0.180] m`, both with zero relative RPY.
 
 **Deliverables:**
 
-- Modelling screenshot: **[TODO: add final path, e.g. `figures/task2_vehicle.png`]**
-- TF tree: **[TODO: `figures/tf_tree.png`]**
-- Video: `Video_Task2.[mp4/mkv/…]` — **[TODO: record arena + vehicle + visible camera/LiDAR + basic motion]**
+- Modelling screenshot: [Task2_vehicle.png](figures/Task2_vehicle.png) - Image of modelled ackermann vehicle with camera and lidar mounted on the chassis
+- TF tree: [tf_tree.png](figures/tf_tree.png) - TF tree of base_link → camera_link and laser_link
+- Video: [Video_Task2.webm](video/Video_Task2.webm) - Vehicle, map with lidar & camera visible → basic motion using teleop with live plot of trajectory
 
 ---
 
@@ -493,7 +553,7 @@ Additional dependencies include Nav2/AMCL, `cv_bridge`, OpenCV, NumPy and PyYAML
 source /opt/ros/humble/setup.bash
 rosdep install --from-paths ros2_ws/src --ignore-src -r -y
 colcon build --base-paths ros2_ws/src --packages-select ee5112_vehicle --symlink-install
-source install/setup.bash
+source ~/EE5112_MiniLab1.2/setup_minilab.bash
 ros2 launch ee5112_vehicle task3_demo.launch.py
 ```
 
@@ -573,7 +633,7 @@ This section is marked for the **whole group**. Confirm every item before you zi
 | File | Linked task | Content |
 |------|-------------|---------|
 | `README.md` | 5 | Tasks 1–4 documented, including Task 4; recheck against `README_TEMPLATE.md` and fill in the TF-tree screenshot before zipping |
-| `Video_Task2.*` | 2 | **To record:** vehicle/map, visible camera/LiDAR and basic motion |
+| [Video_Task2.webm](video/Video_Task2.webm) | 2 | Vehicle, map with lidar & camera visible → basic motion using teleop with live plot of trajectory |
 | [Video_Task3.webm](video/Video_Task3.webm) | 3 | Four-colour typed search: Yellow → Purple → Orange → Green; visible terminal and SUCCESS |
 | [Video_Task4.mp4](video/Video_Task4.mp4) | 4 | Spoken command `find purple and yellow` with `speech_command.py` running; `[STT]` lines, autonomous search and `[MISSION] status=SUCCESS` |
 
@@ -635,7 +695,7 @@ Put the **same** four numbers in both `<ambient>` and `<diffuse>`.
 
 ## 10. Limitations
 
-- Task 2 vehicle, controllers, RGB camera, 2D LiDAR and prescribed arena are implemented and verified in Gazebo Classic.
+- Task 2 trajectory validation uses a low-speed kinematic bicycle model, so actuator transients, tyre/contact dynamics and wheel slip represented by Gazebo are not modelled explicitly; these effects produce residual model-to-ground-truth trajectory error. The live teleoperation plots are intended for validation/visualisation rather than closed-loop trajectory tracking.
 - Task 3 colour detection, planner/controller and autonomous mission parser are implemented; see Section 7 for its own verification notes and limitations.
 - Task 4 speech-to-text (`speech_command.py`) is implemented, unit-tested offline, and verified end-to-end with a live microphone against the running Gazebo stack (Section 8, `Video_Task4`).
 - Camera throughput can fall below its nominal configured rate depending on Gazebo rendering/simulation load; perception performance should be rechecked with the final Task 3 stack.
@@ -650,231 +710,10 @@ Put the **same** four numbers in both `<ambient>` and `<diffuse>`.
 - ROS 2 Humble `ros2_control` / `ros2_controllers` — simulated steering and rear-wheel control.
 - `gazebo_ros` and `gazebo_ros2_control` — Gazebo Classic integration and simulated hardware.
 - `robot_state_publisher`, Xacro and TF2 — robot description and TF publication/verification.
-- **[TODO Task 1: add at least two locomotion/kinematics references actually consulted.]**
+- R. Siegwart, I. R. Nourbakhsh, and D. Scaramuzza, *Introduction to Autonomous Mobile Robots*, 2nd ed. Cambridge, MA, USA: MIT Press, 2011.
+- K. M. Lynch and F. C. Park, *Modern Robotics: Mechanics, Planning, and Control*. Cambridge, U.K.: Cambridge University Press, 2017.
 - [`SpeechRecognition`](https://pypi.org/project/SpeechRecognition/) (PyPI library used by `speech_command.py`) and its [Google Web Speech API](https://cloud.google.com/speech-to-text) backend (default `engine`); [CMU Sphinx / `pocketsphinx`](https://cmusphinx.github.io/) (optional offline `engine: sphinx`).
-- **[TODO Task 3: add third-party perception/planning packages or APIs actually used, beyond the ROS/Nav2 packages already listed above.]**
 
-------------------------------------------------------------------------
+---
 
-## 12. Task 2 --- Trajectory-validation additions
 
-> **Additive update:** This section records the trajectory-validation
-> work completed after the Task 2 material above. The existing README
-> content has been retained unchanged.
-
-### Additional Task 2 implementation
-
-A controlled open-world trajectory-validation environment was added so
-that the same verified Ackermann vehicle can be tested without
-collisions with the walls of the prescribed three-room arena. The
-prescribed `arena.world` remains the Task 2 map and the platform that
-Tasks 3 and 4 must use; the open world is used only for controlled Task
-2 motion-model experiments.
-
-Additional files:
-
--   `ee5112_vehicle/worlds/trajectory_test.world` --- unobstructed
-    Gazebo Classic world for controlled motion tests.
--   `ee5112_vehicle/launch/trajectory_test.launch.py` --- launches the
-    verified vehicle in the open test world and preserves the working
-    ROS 2 Humble/Gazebo Classic Xacro-processing and controller-startup
-    sequence.
--   `ee5112_vehicle/ee5112_vehicle/trajectory_experiment.py` ---
-    automated Task 2 trajectory experiment, data recorder and plot
-    generator.
--   `task2_results/csv/` --- experiment CSV files and numerical
-    summaries.
--   `task2_results/figures/` --- generated trajectory, heading, speed,
-    steering, lateral-displacement and position-error plots.
-
-The vehicle Xacro was extended with Gazebo ground-truth odometry using
-`libgazebo_ros_p3d.so`. The resulting `/odom` topic publishes
-`nav_msgs/msg/Odometry` in the `world` frame for recording the simulated
-vehicle pose and velocity during Task 2 validation. This ground-truth
-odometry is for model verification and does not replace the onboard
-camera/LiDAR sensing required by later tasks.
-
-### Automated trajectory experiments
-
-  Experiment        Equivalent steering   Commanded speed   Duration
-  --------------- --------------------- ----------------- ----------
-  `straight`                    `0 deg`        `0.12 m/s`      `4 s`
-  `gentle_left`               `+15 deg`        `0.12 m/s`      `5 s`
-  `sharp_left`                `+30 deg`        `0.12 m/s`      `4 s`
-  `right_turn`                `-20 deg`        `0.12 m/s`      `5 s`
-
-For each experiment, the script converts the equivalent bicycle steering
-angle into separate left/right Ackermann steering commands, commands the
-rear-wheel velocity controller, records `/odom` and `/joint_states`, and
-compares:
-
-1.  **Command-input bicycle model:** bicycle equations using requested
-    speed and equivalent steering.
-2.  **Measured-input bicycle model:** the same equations using realised
-    translational speed from Gazebo `/odom` and the commanded equivalent
-    steering.
-3.  **Gazebo ground truth:** recorded `/odom` pose.
-
-The measured-input comparison is an **input-conditioned kinematic
-validation**. It tests whether the bicycle kinematics reproduce pose
-evolution once the realised Gazebo speed is supplied; it is not an
-independent prediction of drivetrain speed.
-
-### Trajectory-validation observations
-
-The tests exposed a consistent difference between the nominal `0.12 m/s`
-command and the lower realised Gazebo speed. `/odom` speed and
-wheel-derived speed closely agree, showing that recorded vehicle motion
-is consistent with measured wheel motion.
-
-For straight motion, the measured-input bicycle trajectory almost
-overlaps the Gazebo trajectory while the command-input model accumulates
-longitudinal error. Heading and lateral displacement remain essentially
-constant.
-
-For gentle-left and right-turn motion, the measured-input model follows
-Gazebo heading closely and produces much smaller position error than the
-command-input model. Residual Cartesian differences remain because the
-bicycle model is a single-track, no-slip approximation while Gazebo
-simulates four wheel contacts and rigid-body/contact physics.
-
-For sharp-left motion, the discrepancy increases. With an equivalent
-`30 deg` bicycle command, ideal Ackermann conversion requires the inner
-wheel to steer beyond the physical joint limit. The implementation
-clamps each front steering joint to `+/-35 deg`, so the physical
-steering geometry cannot realise the ideal equivalent command exactly.
-This directly demonstrates the effect of the steering constraint on
-achievable curvature.
-
-For clean final comparisons, restart `trajectory_test.launch.py` before
-each manoeuvre so all tests begin from approximately the same initial
-pose.
-
-### Additional Task 2 installation requirements
-
-The trajectory experiment uses Matplotlib and ROS 2 odometry/message
-packages. Install these if they are not already present:
-
-``` bash
-sudo apt update
-sudo apt install \
-  python3-matplotlib \
-  ros-humble-nav-msgs \
-  ros-humble-sensor-msgs \
-  ros-humble-std-msgs \
-  ros-humble-gazebo-plugins
-```
-
-`ros-humble-gazebo-plugins` supplies the Gazebo Classic P3D plugin used
-for `/odom`. The previously listed Gazebo, `gazebo_ros2_control`,
-`ros2_control`, controller, Xacro, TF, RViz and camera-verification
-dependencies remain required.
-
-### Build and verify the updated package
-
-``` bash
-cd ~/EE5112_MiniLab1.2
-source /opt/ros/humble/setup.bash
-
-colcon build --base-paths ros2_ws/src --packages-select ee5112_vehicle --symlink-install
-source install/setup.bash
-
-ros2 pkg executables ee5112_vehicle
-```
-
-The package should include `ee5112_vehicle trajectory_experiment`.
-
-The prescribed project arena remains:
-
-``` bash
-ros2 launch ee5112_vehicle arena.launch.py
-```
-
-Verify the main interfaces with:
-
-``` bash
-ros2 control list_controllers
-ros2 control list_hardware_interfaces
-ros2 topic list -t | grep -E "odom|camera|scan"
-```
-
-### Run the controlled trajectory validation
-
-Terminal 1:
-
-``` bash
-cd ~/EE5112_MiniLab1.2
-source /opt/ros/humble/setup.bash
-source install/setup.bash
-ros2 launch ee5112_vehicle trajectory_test.launch.py
-```
-
-Verify before running:
-
-``` bash
-ros2 control list_controllers
-ros2 topic echo /odom --once
-```
-
-Terminal 2:
-
-``` bash
-source /opt/ros/humble/setup.bash
-source ~/EE5112_MiniLab1.2/install/setup.bash
-
-ros2 run ee5112_vehicle trajectory_experiment --ros-args -p experiment:=straight
-```
-
-Other experiments:
-
-``` bash
-ros2 run ee5112_vehicle trajectory_experiment --ros-args -p experiment:=gentle_left
-ros2 run ee5112_vehicle trajectory_experiment --ros-args -p experiment:=sharp_left
-ros2 run ee5112_vehicle trajectory_experiment --ros-args -p experiment:=right_turn
-```
-
-Restart the trajectory-test simulation between final report runs if a
-common initial pose is required.
-
-### Generated Task 2 evidence
-
-Each experiment writes a CSV file, text summary and six plots showing:
-
--   command-input bicycle model vs measured-input bicycle model vs
-    Gazebo trajectory;
--   commanded, `/odom` and wheel-derived speed;
--   heading comparison;
--   command-input and measured-input position error;
--   equivalent bicycle and individual Ackermann steering angles;
--   lateral displacement.
-
-Use the generated numerical summaries for final RMS, maximum and
-final-error values rather than estimating values visually from plots.
-
-### Updated Task 2 verification status
-
-The following are now implemented and verified in addition to the
-earlier Task 2 items:
-
--   `/odom` Gazebo ground-truth pose/velocity output.
--   Automated straight, gentle-left, sharp-left and right-turn
-    manoeuvres.
--   Planned-versus-recorded trajectory plotting.
--   Commanded-versus-realised speed comparison.
--   Wheel-derived speed cross-check using `/joint_states`.
--   Heading and lateral-displacement comparison.
--   Quantitative command-input and measured-input trajectory-error
-    calculation.
--   Demonstration of the `+/-35 deg` physical steering-joint limit
-    during high-curvature motion.
--   Open trajectory-validation world while retaining `arena.world` as
-    the Task 2/3/4 platform.
-
-### Task 2 deliverable update
-
-For final Task 2 evidence, retain the required modelling screenshot with
-the camera and LiDAR mounts clearly visible and record `Video_Task2`
-using the prescribed Task 2 vehicle. The trajectory plots and summaries
-provide the required recorded `x`, `y`, `theta`, `v` and steering
-analysis. The prescribed three-room arena remains the project map; the
-open trajectory-test world is supporting validation infrastructure only.
