@@ -107,6 +107,8 @@ ros2 launch ee5112_vehicle arena.launch.py
 
 This starts the prescribed three-room Gazebo arena, publishes the Task 2 robot description, spawns the Ackermann vehicle at START `(0.55, 0.35, 0)`, loads `gazebo_ros2_control`, and starts the joint-state, steering and rear-wheel controllers.
 
+**Main launch file:** Run `tmux_start.bash` from the repository root (or with `MINILAB_WORKSPACE` set to point at a different checkout), opens one tmux session with a pane per node — Gazebo, colour detector, AMCL, the Ackermann converter, the Task 3 mission, Nav2, RViz, the typed-command interface and the Task 4 speech interface — each already sourced and ready. This launches Task 2 (vehicle, robot-state publisher, camera/LiDAR), Task 3 (colour/mission nodes) and Task 4 (speech node) implementations. 
+
 **Task 2 basic-motion demonstration:**
 
 Terminal 1 — vehicle and arena:
@@ -133,24 +135,12 @@ source ~/EE5112_MiniLab1.2/setup_minilab.bash
 ros2 run ee5112_vehicle ackermann_teleop
 ```
 
-**Launching the full Task 3 + Task 4 stack in one go:** `bash tmux_start.bash`, run from the repository root (or with `MINILAB_WORKSPACE` set to point at a different checkout), opens one tmux session with a pane per node — Gazebo, colour detector, AMCL, the Ackermann converter, the Task 3 mission, Nav2, RViz, the typed-command interface and the Task 4 speech interface — each already sourced and ready. This is the quickest way to reproduce the complete system end to end.
-
-Verification:
-
-```bash
-ros2 control list_controllers
-ros2 control list_hardware_interfaces
-ros2 topic list | grep -E "camera|scan"
-```
-
 **World / map files used for marking:**
 
 - World: `ee5112_vehicle/worlds/arena.world`
 - Map / occupancy: `ee5112_vehicle/maps/arena_map.yaml` with `ee5112_vehicle/maps/arena_map.pgm`
 - Specs: `ee5112_vehicle/config/MiniLab1.2_platform_specs_5112.json`
 - Generator: `ee5112_vehicle/scripts/generate_arena.py`
-
-**Main launch file:** `ee5112_vehicle/launch/arena.launch.py` starts the arena, Task 2 vehicle, robot-state publisher, camera/LiDAR and low-level controllers. Task 3's colour/mission nodes and Task 4's speech node are launched separately — see Sections 7 and 8 below, or use `tmux_start.bash` above to bring up everything together.
 
 **Task 4 speech:** with the Task 3 stack already running (`task3_demo.launch.py` or the individual launch files plus `task3.launch.py`), run the speech node directly in its own terminal, the same way as the typed command node:
 
@@ -648,26 +638,12 @@ A `debug_text_mode: true` parameter lets a member type a line instead of speakin
 
 ## 9. Task 5 — Videos and README checklist (ALL)
 
-This section is marked for the **whole group**. Confirm every item before you zip.
-
 | File | Linked task | Content |
 |------|-------------|---------|
 | `README.md` | 5 | Tasks 1–4 documentented; TF-tree screenshot included under Section 4 |
 | [Video_Task2.webm](video/Video_Task2.webm) | 2 | Vehicle, map with lidar & camera visible → basic motion using teleop with live plot of trajectory |
 | [Video_Task3.webm](video/Video_Task3.webm) | 3 | Four-colour typed search: Yellow → Purple → Orange → Green; visible terminal and SUCCESS |
 | [Video_Task4.webm](video/Video_Task4.webm) | 4 | Spoken command `find purple and yellow` with `speech_command.py` running; `[STT]` lines, autonomous search and `[MISSION] status=SUCCESS` |
-
-> In `Video_Task3` and `Video_Task4`, the terminal or rosout log **must remain visible throughout**. A video without that output is incomplete.
-
-**Zipping the submission:** from the repository root, once `Video_Task2` is also in `video/`:
-
-```bash
-cd ~/EE5112_MiniLab1.2
-zip -r minilab_group_13.zip . \
-  -x '.git/*' 'build/*' 'install/*' 'log/*' '**/__pycache__/*'
-```
-
-`colcon build` puts `build/`, `install/` and `log/` at the repository root (not under `ros2_ws/`), so the exclude patterns above target the repository root to actually match them. Unzip the result elsewhere afterwards and confirm `README.md`, the three videos and `ros2_ws/src/` are all present, and that `build/`/`install/`/`log/` are genuinely absent (a marker rebuilds with `colcon build`, so they're not needed in the zip).
 
 ---
 
@@ -726,7 +702,7 @@ Put the **same** four numbers in both `<ambient>` and `<diffuse>`.
 
 ## 11. References / third-party code
 
-- EE5112 Mini-Lab specification and `MiniLab1.2_platform_specs_5112.json` — authoritative vehicle dimensions, sensor transforms, arena geometry, block positions/colours and START pose.
+- EE5112 Mini-Lab specification and `MiniLab1.2_platform_specs_5112.json` — vehicle dimensions, sensor transforms, arena geometry, block positions/colours and START pose.
 - ROS 2 Humble `ros2_control` / `ros2_controllers` — simulated steering and rear-wheel control.
 - `gazebo_ros` and `gazebo_ros2_control` — Gazebo Classic integration and simulated hardware.
 - `robot_state_publisher`, Xacro and TF2 — robot description and TF publication/verification.
